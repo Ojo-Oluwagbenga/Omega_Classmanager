@@ -7,6 +7,7 @@
     padding: 0;
     box-sizing:border-box;
 }
+
 body {
     font-size: 14px;
     font-family: "Poppins", sans-serif;
@@ -25,10 +26,12 @@ align-items:center;
     
 }
 .header{
-    margin:0;
-    background-color:#6200EE;
-    color:#fff;
-    border-radius: 0px 0px 10px 10px;
+    margin: 10px auto;
+    background-color: #711dd8;
+    color: aliceblue;
+    border-radius: 10px;
+    width: calc(100% - 20px);
+    box-shadow: 0px 5px 23px -9px black;
 }
 .first{
 display:flex;
@@ -51,6 +54,15 @@ padding:1rem;
     font-size:1rem;
     padding-top:1.7rem;
     }
+    .pending-head .pending{
+        display: flex;
+    }
+    .pending-head .pending span{
+        margin-left: 15px;
+    }
+    .pending-head .head-svg{
+        height: 13px;
+    }
     .seeall:hover{
     cursor: pointer;
     }
@@ -60,10 +72,10 @@ padding:1rem;
     }
 
     .box{
-        padding: 5px;
-        min-width: 150px;
+        padding: 5px 10px;
+        min-width: max-content;
         margin-left: 19px;
-        background-color: #6200DD;
+        background-color: #711dd8;
         box-shadow: 0px 1.27438px 3.82313px rgb(0 0 0 / 15%);
         border-radius: 10px;
     }
@@ -93,7 +105,6 @@ padding:1rem;
 .box h4{
     font-size:1rem;
     font-weight: 550;
-    padding:.5rem 0 0 .45rem;
 }
 
 .pay-box{
@@ -103,7 +114,7 @@ padding:1rem;
  .pay-box a{ 
     padding:.2rem;
     background-color:#fff;
-    color:#6200EE;
+    color:#711dd8;
     border-radius:4px;
     text-decoration:none;
     font-weight:bold;
@@ -111,7 +122,6 @@ padding:1rem;
 .inner-boxtwo{
     width:auto;
     color:#fff;
-    padding-left:0.3rem
 }
 .inner-boxtwo h4{
     font-size: 1rem;
@@ -119,10 +129,34 @@ padding:1rem;
 }
 .inner-boxtwo h5{
     padding-bottom:0.5rem;
-    padding-right:0.7rem;
 }
 .inner-boxtwo .hspace{
-    margin-top: -0.4rem;
+    white-space: nowrap;
+    font-size: 13px;
+    font-weight: bold;
+    padding: 3px 0;
+    width: 150px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+
+}
+.inner-boxtwo .status{
+    text-align: right;
+    padding: 5px 0px;
+}
+.inner-boxtwo .status span{
+    font-weight: bold;
+    padding: 4px 0px;
+    border-radius: 5px;
+}
+.inner-boxtwo .status span .s0{
+    color: yellow;
+}
+.inner-boxtwo .status span .s1{
+    color: green;
+}
+.inner-boxtwo .status span .s2{
+    color: red;
 }
 /* Today section */
 .today{
@@ -139,7 +173,7 @@ height: 21.7rem;
     width: 3rem;
     height: .4rem;
     display: block;
-    background-color: #6200EE;
+    background-color: #711dd8;
     border-radius: 5px;
     transform: translateX(-150%);
     margin-top:1.2rem;
@@ -185,21 +219,37 @@ padding:0.8rem 0.6rem 0 0.6rem;
     padding-bottom: 1rem;
 }
 .foot{
-   background-color: #6200EE; 
-   position: fixed;
-   bottom: 0px;
-   width: 100%;
+    background-color: #fff;
+    position: fixed;
+    bottom: 0px;
+    box-shadow: 0px 0px 40px -14px black;
+    width: 100%;
 }
 .foot .icon-flex{
     display: flex;
     flex-wrap:wrap;
     align-items: center;
-    padding:1rem;
+    padding:10px;
     justify-content:space-around
 }
-.icon-flex img{
-    width: 1.5rem;
+
+.foot .icon-flex .s-hold{
+    padding: 7px 15px;
+    border-radius: 10px;
 }
+
+.icon-flex svg{
+    width: 1.5rem;
+    fill: grey;
+}
+.icon-flex .attendance{
+    position: relative;
+}
+.icon-flex .attendance{
+
+}
+
+
 
 .container {
     margin-bottom: 2rem;

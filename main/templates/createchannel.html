@@ -1,0 +1,373 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Payment channel</title> 
+    {% load static %}
+    
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+    <link href="https://cdn.quilljs.com/1.3.6/quill.snow.css" rel="stylesheet">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="stylesheet" href="../static/general/css/utils.css">
+    <script src="https://cdn.quilljs.com/1.3.6/quill.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+    <link rel="stylesheet" href="../static/createchannel/css/style.css">
+</head>
+<body class="body">
+    {%csrf_token%}
+    <div class="popalertBox">
+        <style>
+            .popalertBox{
+                position: fixed;
+                width: 100vw;
+                bottom: 60px;
+                display: none;
+                z-index: 220;
+            }
+            .popalertBox .mypop{
+                width: max-content;
+                max-width: 90%;
+                margin: 0px auto;
+                padding: 10px 20px;
+                border-radius: 10px;
+                background-color: #343434;
+                transition: opacity 0.3s ease-in;
+                color: white;
+                font-weight: normal;
+                font-family: 'Roboto Condensed', sans-serif;
+                font-size: 14px;
+                letter-spacing: 0.5px;
+                opacity:1;
+            }
+        </style>
+        <div class="mypop">Pop Here</div>
+        <script>
+            function popAlert(text){
+                $(".popalertBox").css('display', 'block');
+                $(".popalertBox .mypop").css('opacity', '1').text(text);
+                setTimeout(() => {
+                    $(".popalertBox .mypop").css('opacity', '0');
+                    setTimeout(() => {
+                        $(".popalertBox").css('display', 'none');
+                    }, 400);
+                }, 2000);
+            }
+        </script>
+    </div>
+    <!-- Head Nav -->
+    <div class="top-nav">
+        <div class="arrow c-vert">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Pro 6.2.1 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license (Commercial License) Copyright 2022 Fonticons, Inc. --><path d="M9.4 233.4c-12.5 12.5-12.5 32.8 0 45.3l160 160c12.5 12.5 32.8 12.5 45.3 0s12.5-32.8 0-45.3L109.2 288 416 288c17.7 0 32-14.3 32-32s-14.3-32-32-32l-306.7 0L214.6 118.6c12.5-12.5 12.5-32.8 0-45.3s-32.8-12.5-45.3 0l-160 160z"/></svg>
+        </div>
+        <span class="c-vert">Create Payment Channel</span>        
+    </div>
+    <!-- Content -->
+    <section class="content-area">
+        <div class="editsuper">           
+
+            <div class="namesuper editbox">
+                <h3 class="ed-name">Add product name</h3>
+                <div class="texthold">
+                    <input id="name" placeholder="Chemistry Manual" type="text">
+                </div>
+            </div>
+            
+            <div class="namesuper editbox">
+                <h3 class="ed-name">Set product price</h3>
+                <div class="texthold">
+                    <input id="price" type="numeric" placeholder="1200" >
+                </div>
+            </div>
+
+            <div class="namesuper editbox time">
+                <label for="deadline">Choose a deadline</label>
+                <div class="i-pack">
+                    <div class="c-vert"><input type="checkbox" id="activatetime" name="activatet"></div>
+                    <input readonly="true" type="datetime-local" id="deadline"
+                        name="meeting-time" value="2023-01-12T12:00"
+                        min="2023-01-07T00:00" max="2030-06-14T00:00" style="
+                        padding: 10px;
+                        border: none;
+                        outline: none;
+                        opacity: 0.5;
+                        border-radius: 10px;
+                    ">
+                </div>
+                <script>
+                    $("#activatetime").change(function(){
+                        if ($(this).is(":checked")){
+                            $("#deadline").css({
+                                "opacity":"1"
+                            }).removeAttr('readonly');
+                        }else{
+                            $("#deadline").css({
+                                "opacity":"0.5"
+                            }).attr('readonly', 'true');
+                        }
+                    })
+                </script>
+                
+                <style>
+                    label {
+                        display: block;
+                        font-weight: bold;
+                        font-size: 14px;
+                    }
+
+                    .time #activatetime{
+                        width: 20px;
+                        height: 20px;
+                    }
+                    .time .i-pack{
+                        display: flex;
+                    }
+                    .time .i-pack :nth-child(n){
+                        margin-left: 10px;
+                    }
+                    input,
+                    label {
+                        margin: 0.4rem 0;
+                    }
+
+                </style>
+            </div>
+
+            <div class="editarea">
+                <h3 class="ed-name">
+                    Add object images
+                </h3>
+                <div class="imagesuper">
+                    <div class="imageholdadd c-vert">
+                        <input id="selector" type="file" accept="image/*">
+                        <div class="addicon"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Pro 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license (Commercial License) Copyright 2022 Fonticons, Inc. --><path d="M256 80c0-17.7-14.3-32-32-32s-32 14.3-32 32V224H48c-17.7 0-32 14.3-32 32s14.3 32 32 32H192V432c0 17.7 14.3 32 32 32s32-14.3 32-32V288H400c17.7 0 32-14.3 32-32s-14.3-32-32-32H256V80z"/></svg></div>
+                    </div>
+                </div>
+                <div style="display: none;">
+                    <img id="mincanvahold" src="img_the_scream.jpg" alt="The Scream">
+                    <canvas id="mincanva" id="myCanvas" style="border:1px solid #d3d3d3;">
+                </div>
+                <script>
+                    let selstate = {}
+                    function base64Resize(sourceBase64, scale , callBack) {
+
+                        const _scale = scale;
+                        var img = document.createElement('img');
+                        img.setAttribute("src", sourceBase64);
+
+                        img.onload = () => {
+                            var canvas = document.createElement('canvas');
+                            canvas.width = img.width * _scale;
+                            canvas.height = img.height * _scale;
+
+                            var ctx = canvas.getContext("2d");
+                            var cw = canvas.width;
+                            var ch = canvas.height;
+                            var maxW = img.width * _scale;
+                            var maxH = img.height * _scale;
+
+                            var iw = img.width;
+                            var ih = img.height;
+                            var scl = Math.min((maxW / iw), (maxH / ih));
+                            var iwScaled = iw * scl;
+                            var ihScaled = ih * scl;
+                            canvas.width = iwScaled;
+                            canvas.height = ihScaled;
+                            ctx.drawImage(img, 0, 0, iwScaled, ihScaled);
+                            const newBase64 = canvas.toDataURL("image/jpeg", scl);
+
+                            callBack(newBase64);
+                        }
+                    }
+                    
+                    function listenUpload(inputSelct, func) {
+                        $(inputSelct).change(function(){
+                            if (this.files && this.files[0]) {
+                                var reader = new FileReader();
+                                reader.readAsDataURL(this.files[0]);
+                                
+                                let imgobj = this.files[0];
+                                
+                                reader.onload = function (e) { 
+                                    // $(inputSelct).val("");
+                                    // func(e.target.result, imgobj);
+                                    base64Resize(e.target.result, 0.3, function(result){
+                                        $(inputSelct).val("");
+                                        func(result, imgobj);
+                                    })                                  
+                                }
+                                
+                            }
+                        });                
+                    }
+                
+                    function editselect(imgdata){
+                        // Remove dot because the id is used as id in html so its not intepreted as class cat
+                        let id =  Object.keys(selstate).length + "_" + imgdata['id'].replace(".",""); //uses the name in this case;
+                                
+                        
+                        if (selstate.hasOwnProperty(id)){
+                            id = Object.keys(selstate).length + "_" + id; 
+                        }
+                        selstate[id] = [imgdata['img']];
+                        let count = $('.imagesuper').children().length - 1;
+                        let el = '<div class="imagehold" id="'+ id +'">'+
+                            '<div class="float-control c-vert"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 512"><!--! Font Awesome Pro 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license (Commercial License) Copyright 2022 Fonticons, Inc. --><path d="M310.6 150.6c12.5-12.5 12.5-32.8 0-45.3s-32.8-12.5-45.3 0L160 210.7 54.6 105.4c-12.5-12.5-32.8-12.5-45.3 0s-12.5 32.8 0 45.3L114.7 256 9.4 361.4c-12.5 12.5-12.5 32.8 0 45.3s32.8 12.5 45.3 0L160 301.3 265.4 406.6c12.5 12.5 32.8 12.5 45.3 0s12.5-32.8 0-45.3L205.3 256 310.6 150.6z"/></svg></div>'+
+                            '<img src="'+imgdata['img']+'" alt="">'+
+                        '</div>';
+                        if (count == 0){
+                            $('.imagesuper').prepend(el);
+                        }else{
+                            $('.imagesuper .imagehold:nth-child('+count+')').after(el);
+                        }
+                        $(".imagehold .float-control").click(function(){
+                            let id = $(this).parent().attr('id')                            
+                            delete selstate[id]
+                            $('.imagesuper #' + id).remove()
+                        })
+                    }
+                        
+                    listenUpload('#selector', function(imgbase64, fobj){
+                        let idata = {
+                            'img':imgbase64,
+                            'id': fobj.name
+                        };                
+                        editselect(idata);                
+                    }) 
+                </script>
+                <style>
+                    .editarea{
+                        padding: 20px 10px;
+                        border-radius: 10px;
+                    }
+                    .editarea .blockname{
+                        padding: 20px 0;
+                    }
+                    .editarea .imagesuper{
+                        display: flex;  
+                        flex-wrap: wrap;
+                        /* overflow-x: scroll; */
+                    }  
+
+                    .imagesuper .imagehold{
+                        height: 150px;
+                        padding: 10px;
+                        background-color: rgb(219, 219, 219);
+                        position: relative;
+                        border-radius: 10px;
+                        margin: 10px 10px 10px 0px;
+                    }
+                    .float-control{
+                        position: absolute;
+                        height: 30px;
+                        width: 30px;
+                        right: 15px;
+                        top: 15px;
+                        border-radius: 50%;
+                        background-color: rgba(255, 255, 255, 0.397);
+                        transition: all 0.3s;
+                    }
+                    .float-control:hover{
+                        background-color: rgba(228, 15, 15, 0.829);
+                    }
+                    .float-control.image-item:hover{
+                        background-color:rgb(75, 25, 5);
+                    }
+                    .float-control svg{
+                        height: 50%;
+                        margin: 0px auto;
+                    }
+                    .imagesuper .imagehold img{
+                        height: 100%;
+                        margin: 0px auto;
+                    }
+                    .imageholdadd{
+                        position: relative;
+                        min-width: 90px;
+                        height: 150px;
+                        margin: 10px 0px;
+                        padding: 10px;
+                        border-radius: 10px;
+                        background-color: rgb(202, 202, 202);
+                        transition: 0.3s all;
+                    }
+                    .imageholdadd:hover{
+                        background-color: rgb(112, 112, 112);
+                    }
+                    .imageholdadd .addicon{
+                        height: 20px;
+                        text-align: center;
+                    }
+                    .imageholdadd .addicon svg{
+                        height: 100%;
+                        fill: rgb(156, 156, 156);
+                    }
+                    .imageholdadd input{
+                        width: 100%;
+                        height: 100%;
+                        opacity: 0;
+                        position: absolute;
+                        top: 0;
+                    }
+                </style>
+            </div>
+
+            <div class="descriptionsuper editbox">
+                <h3 class="ed-name">Add a product description</h3>
+                <div id="mpEditorCont">
+
+                </div>
+                <script>
+                    function replaceEtop(){                        
+                        var quill = new Quill("#editor", {
+                            placeholder:"Click here to start writing...",
+                            theme: "snow"
+                        });
+    
+                        $("#commentEditId .ql-toolbar").prepend('<span class="u-r-super"><div id="myundo"><svg style="height:17px" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Pro 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license (Commercial License) Copyright 2022 Fonticons, Inc. --><path d="M48.5 224H40c-13.3 0-24-10.7-24-24V72c0-9.7 5.8-18.5 14.8-22.2s19.3-1.7 26.2 5.2L98.6 96.6c87.6-86.5 228.7-86.2 315.8 1c87.5 87.5 87.5 229.3 0 316.8s-229.3 87.5-316.8 0c-12.5-12.5-12.5-32.8 0-45.3s32.8-12.5 45.3 0c62.5 62.5 163.8 62.5 226.3 0s62.5-163.8 0-226.3c-62.2-62.2-162.7-62.5-225.3-1L185 183c6.9 6.9 8.9 17.2 5.2 26.2s-12.5 14.8-22.2 14.8H48.5z"/></svg></div><div id="myredo"> <svg style="height:17px" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Pro 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license (Commercial License) Copyright 2022 Fonticons, Inc. --><path d="M463.5 224H472c13.3 0 24-10.7 24-24V72c0-9.7-5.8-18.5-14.8-22.2s-19.3-1.7-26.2 5.2L413.4 96.6c-87.6-86.5-228.7-86.2-315.8 1c-87.5 87.5-87.5 229.3 0 316.8s229.3 87.5 316.8 0c12.5-12.5 12.5-32.8 0-45.3s-32.8-12.5-45.3 0c-62.5 62.5-163.8 62.5-226.3 0s-62.5-163.8 0-226.3c62.2-62.2 162.7-62.5 225.3-1L327 183c-6.9 6.9-8.9 17.2-5.2 26.2s12.5 14.8 22.2 14.8H463.5z"/></svg> </div></span>');
+                        let v1 = $("#commentEditId").find(".ql-toolbar");
+                        let v2 = $("#commentEditId").find("#editor");
+                        $("#commentEditId").html('<div class="ce-Head"><div id="qtSuper"></div><div id="sendCommSup"><i class="fa-solid fa-paper-plane"></i></div></div>');
+                        $("#commentEditId #qtSuper").html(v1);
+                        $("#commentEditId #qtSuper").append("<div></div>");
+                        $("#commentEditId").append(v2);
+                
+                        $("#commentEditId .ql-editor").prepend("");
+                        $("#myundo").click(function(){
+                            quill.history.undo();
+                        });
+                        $("#myredo").click(function(){
+                            quill.history.redo();
+                        });
+                        $("#editor .ql-tooltip input").attr("value", "Hello");
+                        
+                    }
+                    
+                    
+                    $(document).ready(function(){
+                        $("#mpEditorCont").html('<div class="commentEditorSuper" style="overflow:hidden"><div class="commentEdit" id="commentEditId"><div id="editor"></div></div></div>');
+
+                        replaceEtop();
+                    })
+                    
+                    
+                </script>
+            </div>
+
+            <div class="createchannel" id="create">
+                <div class="hold">
+                    <span class="c-vert">Create</span> 
+                    <span class="c-vert" >
+                        <svg xmlns="http://www.w3.org/2000/svg" style="fill:#3434b3;  ; height:13px" viewBox="0 0 448 512"><!--! Font Awesome Pro 6.2.1 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license (Commercial License) Copyright 2022 Fonticons, Inc. --><path d="M438.6 278.6c12.5-12.5 12.5-32.8 0-45.3l-160-160c-12.5-12.5-32.8-12.5-45.3 0s-12.5 32.8 0 45.3L338.8 224 32 224c-17.7 0-32 14.3-32 32s14.3 32 32 32l306.7 0L233.4 393.4c-12.5 12.5-12.5 32.8 0 45.3s32.8 12.5 45.3 0l160-160z"/></svg>
+                    </span>
+                </div>
+            </div>
+            
+        </div>
+
+    </section>
+
+    <script src="../static/createchannel/script/script.js"></script>
+</body>
+</html>

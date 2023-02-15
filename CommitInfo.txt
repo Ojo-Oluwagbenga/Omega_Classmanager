@@ -1,0 +1,22 @@
+git init
+git checkout -b branch_name  //This will first set the branch that all add and commits are going.
+git branch -M branchName
+
+May need clearing
+git rm -r --cached .
+
+git add <files>
+git commit -m "My Message"
+may run=> git remote remove origin
+git remote add origin https://github.com/Ojo-Oluwagbenga/Omega_Classmanager.git
+
+git pull origin django_branch --allow-unrelated-histories
+git push -u origin django_branch
+git push -f origin master // To ba ni agidi ju
+
+
+to install the freaking stubborn dlib
+pip install https://github.com/jloh02/dlib/releases/download/v19.22/dlib-19.22.99-cp310-cp310-win_amd64.whl
+
+python manage.py migrate --fake main zero
+python manage.py migrate main zero

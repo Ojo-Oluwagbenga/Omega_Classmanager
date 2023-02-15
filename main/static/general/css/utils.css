@@ -1,5 +1,50 @@
+@import url("https://fonts.googleapis.com/css2?family=Poppins:wght@400;700&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=Roboto+Condensed&display=swap");
+
+body, *{
+    /* font-family: 'Raleway', sans-serif; */
+    margin: 0px;
+    padding: 0px;
+    box-sizing: border-box;
+    font-family: "Poppins", sans-serif;
+}
+svg{
+    height: 13px;
+}
+
 .c-vert{
     display: flex;
     flex-direction: column;
     justify-content: center;
 }
+.top-nav {
+    height: 80px;
+    display: flex;
+    padding: 25px 10px;
+}
+.top-nav .arrow {
+    margin-left: 10px;    
+    width: 20px;
+}
+.top-nav .arrow svg{
+    height: 30px;
+}
+.top-nav span{
+    width: calc(100% - 60px);
+    text-align: center;
+    font-weight: bold;
+}
+
+.hidescroll::-webkit-scrollbar {
+    display: none;
+  }
+  
+  /* no scrollbar for IE, Edge and Firefox */
+  .hidescroll {
+    -ms-overflow-style: none;  /* IE and Edge */
+    scrollbar-width: none;  /* Firefox */
+  }  
+
+  .hide{
+    display: none;
+  }

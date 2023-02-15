@@ -10,40 +10,40 @@ class PendingDue_Super extends Component {
 
   render() {
     return (
-
-    <section class="pending-due">
-        <div class="pending-head">
-            <div class="pending"><b>Pending Dues</b> (4)</div>
-            <div class="seeall">See All</div>
+ 
+    <section className="pending-due">
+        <div className="pending-head">
+            <div className="pending"><b>Pending Dues</b> (9)</div>
+            <div className="seeall">See All</div>
         </div>
-        <div class="box-row">
-        <div class="box one">
-            <div class="inner-box">
+        <div className="box-row">
+        <div className="box one">
+            <div className="inner-box">
                 <p>Due in 24hrs</p>
                 <h5>CTE 121 Practical Manual</h5>
-                <h4 class="amount"><img src="../static/dashboard/img/naira.png"></img> 1500</h4>
-                <p class="pay-box">
-                    <a class="pay-btn" href="">Pay Now</a>
+                <h4 className="amount"><img src="../static/dashboard/img/naira.png"></img> 1500</h4>
+                <p className="pay-box">
+                    <a className="pay-btn" href="">Pay Now</a>
                 </p>
             </div>
             </div>
-            <div class="box two">
-                <div class="inner-box">
+            <div className="box two">
+                <div className="inner-box">
                     <p>Due in 1 day</p>
                     <h5>COM 121 Handout</h5>
-                    <h4 class="amount"><img src="../static/dashboard/img/naira.png"></img> 1000</h4>
-                <p class="pay-box">
-                    <a class="pay-btn" href="">Pay Now</a>
+                    <h4 className="amount"><img src="../static/dashboard/img/naira.png"></img> 1000</h4>
+                <p className="pay-box">
+                    <a className="pay-btn" href="">Pay Now</a>
                 </p>
                 </div>
             </div>
-            <div class="box three">
-                <div class="inner-box">
+            <div className="box three">
+                <div className="inner-box">
                     <p>Due in 3 day</p>
                     <h5>MTH 111 Handout</h5>
-                    <h4 class="amount"><img src="../static/dashboard/img/naira.png"></img> 800</h4>
-                <p class="pay-box">
-                    <a class="pay-btn" href="">Pay Now</a>
+                    <h4 className="amount"><img src="../static/dashboard/img/naira.png"></img> 800</h4>
+                <p className="pay-box">
+                    <a className="pay-btn" href="">Pay Now</a>
                 </p>
                 </div>
             </div>

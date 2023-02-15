@@ -4,7 +4,7 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "dev": "webpack --mode development --watch",
+    "dev": "webpack --mode development --watch --stats-error-details",
     "build": "webpack --mode production"
   },
   "keywords": [],
@@ -20,6 +20,8 @@
     "@babel/preset-env": "^7.20.2",
     "@babel/preset-react": "^7.18.6",
     "babel-loader": "^9.1.2",
+    "babel-preset-es2015": "^6.0.15",
+    "babel-preset-stage-0": "^6.24.1",
     "react": "^18.2.0",
     "react-dom": "^18.2.0"
   }

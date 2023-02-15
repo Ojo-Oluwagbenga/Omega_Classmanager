@@ -24,6 +24,8 @@ ALLOWED_HOSTS = [
 # Application definition
 
 INSTALLED_APPS = [
+    "sslserver",
+    'django_extensions',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -85,6 +87,7 @@ DATABASES = {
         'PORT': '',
     }
 }
+DATA_UPLOAD_MAX_MEMORY_SIZE = 7485760 ## Approx 7MB
 
 
 # Password validation
