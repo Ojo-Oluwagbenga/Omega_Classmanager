@@ -10,6 +10,9 @@ class Manager:
             'errorcode':201,
             "Message": "Broken pipeline!"
         }
+        class_ = getattr(api, apiclass.capitalize() + "API")
+        return getattr(class_, apimethod)(class_, response)
+
         try:
             class_ = getattr(api, apiclass.capitalize() + "API")
             return getattr(class_, apimethod)(class_, response)

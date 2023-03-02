@@ -16,6 +16,7 @@ DEBUG = True
 
 ALLOWED_HOSTS = [
     '192.168.43.172',
+    '172.19.0.235',
     '127.0.0.1',
     'localhost',
 ]
@@ -25,6 +26,7 @@ ALLOWED_HOSTS = [
 
 INSTALLED_APPS = [
     "sslserver",
+    "channels",
     'django_extensions',
     'django.contrib.admin',
     'django.contrib.auth',
@@ -65,7 +67,26 @@ TEMPLATES = [
 ]
 
 WSGI_APPLICATION = 'classmanager.wsgi.application'
+ASGI_APPLICATION = 'classmanager.asgi.application'
 
+CHANNEL_LAYERS = {
+    # 'default':{
+    #     'BACKEND':'channels.layers.InMemoryChannelLayer'
+    # },
+    # "default": {
+    #     "BACKEND": "channels_redis.pubsub.RedisPubSubChannelLayer",
+    #     "CONFIG": {
+    #         "hosts": [("localhost", 6379)],
+    #     },
+    # },
+    "default": {
+        "BACKEND": "channels_redis.core.RedisChannelLayer",
+        "CONFIG": {
+            "hosts": [("localhost", 6379)],
+        },
+    },
+    
+}
 
 # Database
 # https://docs.djangoproject.com/en/4.1/ref/settings/#databases

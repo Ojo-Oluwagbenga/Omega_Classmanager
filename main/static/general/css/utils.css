@@ -48,3 +48,7 @@ svg{
   .hide{
     display: none;
   }
+
+  .nocolor-click{
+    -webkit-tap-highlight-color: transparent;
+  }

@@ -1,0 +1,205 @@
+/* Googlefont Poppins CDN Link */
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@200;300;400;500;600;700&display=swap');
+
+
+
+*{
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+    text-decoration: none;
+    font-family: 'Poppins', sans-serif;
+}
+
+svg{
+    height: 17px;
+}
+
+:root {
+    --Big-font: ;
+
+}
+
+body{
+    width: 100%;
+    max-height: 100vh;
+    background-color: rgb(232, 235, 238);
+}
+
+
+
+/* So on to the classes of the web version, Note: All these classes have 'DESKTOP' starting them for clarity */
+
+
+
+@media screen and (max-width: 3767px) {
+
+    /* Box-Icon for all the icons generally on the page */
+    box-icon {
+        fill: rgb(3, 42, 94);
+    }
+
+    
+    main{
+        margin: 0px auto;
+        max-width: 767px;
+        width: 100%;
+    }
+
+    .navigation {
+        display: flex;
+        justify-content: space-between;
+        padding: 10px 0px;
+        margin: 10px auto;
+        width: 90%;        
+    }
+
+    /* Profil CSS */
+    .profile {
+        display: flex;
+        justify-content: flex-start;
+        margin: 50px auto 10px;
+        width: 90%;
+        padding: 10px;
+    }
+
+   .profile-photo {
+        width: 120px;
+        border-radius: 50%;
+        object-fit: cover;
+    }
+    
+    .profile-content {
+        justify-content: center;
+        flex-wrap: nowrap;
+        padding: 10px 0px;
+        box-sizing: border-box;
+        flex-basis: 60%;
+        margin-left: 50px;
+        align-items: center;
+    }
+    .profile-content h2 {
+        padding: 5px 0px;
+        font-size: 24px;
+        width: 100%;
+        text-align: left;
+    }
+    .profile-content p {
+        width: 100%;
+        text-align: left;
+    }
+    
+
+    .contact {
+        display: block;
+        margin: 10px auto 0px;
+        width: 90%;
+        color: grey;
+        font-size: 15px;
+    }
+    .contact svg{
+        fill: grey;
+    }
+  
+
+   .contact-container  {
+        align-items: center;
+        justify-content: flex-start;
+        display: flex;
+        padding: 5px 10px;
+    }
+
+    .contact div box-icon {
+        fill:  rgb(3, 42, 94);
+        margin: 10px;
+        align-items: center;
+    }
+    .number-mail {
+        margin-left: 30px;
+    }
+    /* Wallet and Orders Section */
+    
+    .engagements {
+    /*  border: 1px solid rgb(3, 42, 94); */
+        margin-top: 5px;
+        display: flex;
+        text-align: center;
+        align-items: center;
+        justify-items: center;
+        padding: 10px 5px;
+    }
+    .engagements div {
+        border: 1px solid rgb(3, 42, 94);
+        padding: 20px 30px;
+        flex-basis: 50%;
+    }
+
+    /* 5TH SECTION CONTAINING OTHER ITEMS BREFORE THE LOG OUT BUTTON */
+    .others{
+        width: 90%;
+        padding: 5px 0px;
+        margin: 10px auto 0px;
+        font-size: 25px;
+    }
+    .others .Flex {
+        padding: 5px 10px;
+        box-shadow: rgb(209, 209, 209);
+
+    /* border: 0.5px solid  rgb(3, 42, 94);
+        border-radius: 10px; */
+        margin-top: 10px;
+        display: flex;
+        justify-content: flex-start;
+        align-items: center;
+    }
+    .others .Flex .icon box-icon {
+        margin: 10px;
+    align-items: center;
+    }
+    .others .Flex .content {
+        margin-left: 20px;
+        font-size: 16px;
+        font-weight: 50px;
+    }
+    /* LOG OUT */
+    .log-out {
+        width: 90%;
+        display: flex;
+        padding: 5px 0px;
+        margin: 10px auto 0px;
+        font-size: 16px;
+    }
+
+    .log-out .Flex {
+        padding: 5px 0px;
+        box-shadow: rgb(209, 209, 209);
+
+    /* border: 0.5px solid  rgb(3, 42, 94);
+        border-radius: 10px; */
+        margin-top: 10px;
+        display: flex;
+        justify-content: flex-start;
+        align-items: center;
+    }
+    .log-out .icon box-icon {
+        fill: rgb(245, 57, 57);
+        margin: 10px;
+    align-items: center;
+    }
+
+    .log-out .content {
+        margin-left: 20px;
+        font-size: 16px;
+        font-weight: 50px;
+    }       
+
+}
+    
+@media screen and (max-width: 360px) {
+    .profile-content h2 {
+        padding: 5px 0px;
+        font-size: 16px;
+        margin-top: 20px;
+    }
+
+}

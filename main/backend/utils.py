@@ -1,3 +1,4 @@
+from bs4 import BeautifulSoup
 
 def inAllowed(text, allowed):
     allowed = str(allowed)
@@ -88,8 +89,9 @@ def validateDict(retdata, arr, name, minlen, maxlen):
     return arr
 
 def numberEncode(code, encNum):
-    code = str(code).zfill(encNum)   
     
+    code = str(code).zfill(encNum)   #Pad on the left with zeros
+     
     Res = 'ZgBoFklNOaJKLM5XYh12pqr6wQRSTdefijAPbcU4mnVW0stuv78xyzGCDE3HI9'
     tlenght = len(Res)
     rtl = ''
@@ -127,3 +129,22 @@ def init_user_session(response,itemcode):
 def isloggedin(response):
 
     return response.session.get('user') is not None
+
+def sanitize_html(value, mtype="none"):
+
+    soup = BeautifulSoup(value)
+        
+    VALID_TAGS = ['strong', 'em', 'p', 'ul', 'li', 'br']
+    if mtype == "none":
+        VALID_TAGS = []
+
+    for tag in soup.findAll(True):
+        if tag.name not in VALID_TAGS:
+            tag.hidden = True
+
+    ret = str(soup.renderContents().decode())
+
+    print (ret)
+    if ret == "":
+        ret = "..."
+    return ret

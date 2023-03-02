@@ -36,7 +36,6 @@ class Attendance_Super extends Component {
       }
     
     getAttendanceData(){
-        console.log("Fessing");
         axios({
             method: 'POST',
             url: './api/attendance/fetchforhome',
@@ -52,7 +51,6 @@ class Attendance_Super extends Component {
             response = response.data;
             if (response.passed){
                 const data = response.attendances
-                console.log(data);
                 this.setState({attendances: data})
             }else{
                 console.log('gg', response.passed);
@@ -62,7 +60,6 @@ class Attendance_Super extends Component {
     }
 
     componentDidMount(){
-        console.log("Fessingdelta1");
         this.getAttendanceData()             
     }
 

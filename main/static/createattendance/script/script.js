@@ -183,7 +183,7 @@ $(document).ready(function(){
             if (pid == "coursehold"){
                 selected_course = $(this).attr("id");
                 console.log(selected_course);
-            }            
+            }
             if (pid == "classhold"){
                 const thisid = $(this).attr("id");
                 selected_classes[thisid] = loadedclasses[thisid];
@@ -208,26 +208,31 @@ $(document).ready(function(){
         
     });
 
-    $(".createattendance").click(function(){
+    $(".createattendance .hold").click(function(){
         
         payload= {
             description:$(".description textarea").val(),
             time:$("#classtime").val(),
+            timename:new Date($("#classtime").val()).toUTCString(),
             creatorid:"loggeduser",
             course_code:selected_course,
-            notify:$(this).attr("notify"),
+            notify:"--",
         }
         console.log(payload.time);
 
-        let error = 0
+        let error = 0;
         let classes = Object.keys(selected_classes);
 
         if (selected_course == ""){
-            popAlert("Select a course above please");
+            popAlert("Kindly select the course above.");
             error = 1;
         }        
         if (classes.length == 0){
-            popAlert("Kindly select at least a class");
+            popAlert("Kindly select at least a class.");
+            error = 1;
+        }
+        if (payload.time == '0001-01-01T01:01'){
+            popAlert("The date and time not set!");
             error = 1;
         }
         payload["classes"] = classes;
@@ -235,7 +240,7 @@ $(document).ready(function(){
         console.log(payload);
 
         if (error == 0){                   
-            console.log("Sending");
+            popAlert("Creating Attendance Poll");
             axios({
                 method: 'POST',
                 url: './api/attendance/create',
@@ -247,8 +252,19 @@ $(document).ready(function(){
                 data: {
                     payload: payload             
                 }
-            }).then(response => {console.log(response)})
+            }).then(response => {
+                console.log(response)
+                response = response.data;
+
+                if (response.passed){
+                    popAlert("Attendance created! Redirecting...");
+                    //Should redirect to the page of activation
+                }else{
+                    popAlert('Unable to create poll. Please check info and try again')
+                }
+            })
             .catch(error => console.error(error))
+        
         }
 
        

@@ -20,3 +20,4 @@ pip install https://github.com/jloh02/dlib/releases/download/v19.22/dlib-19.22.9
 
 python manage.py migrate --fake main zero
 python manage.py migrate main zero
+with the extension you may run "python manage.py reset_db" to clear all

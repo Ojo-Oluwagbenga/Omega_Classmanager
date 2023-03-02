@@ -1,0 +1,51 @@
+
+timetable:{
+    tableset:{
+        
+    },
+    tabledata:{
+        "tbl_code":{ #  That one that look like ins-1 blablabla
+            comment:{
+                replies:{
+                    uscd_cmt1:{
+                        text:"balavly",
+                        user_code:"uscd"
+                        replies:{
+                            uscd_cmt1:{
+                                text:"balavly",
+                                user_code:"uscd"
+                                replies:{
+                                    
+                                }
+                            },
+                            uscd_cmt1:{
+                                text:"balavly",
+                                user_code:"uscd"
+                                replies:{
+                                    
+                                }
+                            }
+                        }
+                    },
+                    uscd_cmt2:{
+                        text:"balavly",
+                        user_code:"uscd"
+                        replies:{
+                            
+                        }
+                    },
+                    uscd_cmt1:{
+                        text:"balavly",
+                        user_code:"uscd"
+                        replies:{
+                            
+                        }
+                    }
+                }
+            }
+        }
+        
+    }
+}
+
+{"tableset": {"Friday": [], "Monday": [], "Sunday": [], "Tuesday": [], "Saturday": [], "Thursday": [], "Wednesday": []}, "tabledata": {}}

@@ -25,6 +25,10 @@ body{
     margin-bottom: 10px;
 }
 
+h3.ed-name.big{
+    font-size: 17px;
+}
+
 h3.ed-name{
     font-size: 14px;
     font-weight: bold;
@@ -80,6 +84,7 @@ h3.ed-name{
     justify-content: flex-end;
     margin-top: 25px;
 }
+
 
 .createchannel .hold{
     padding: 0 10px;

@@ -1,0 +1,78 @@
+
+.intro-text{
+    padding: 10px;
+    color: grey;
+    font-size: 14px;
+}
+.editbox{
+    position: relative;
+}
+.contenthold{
+    margin: 10px;
+    overflow-x: scroll;
+    padding-bottom: 30px;
+}
+.contenthold .editbox{
+    margin-bottom: 0px;
+}
+.contenthold .row{
+    display: flex;
+    margin-bottom: 10px;
+}
+.row .editbox{
+    min-width: 150px;
+    padding: 0px;
+    margin: 5px 10px;
+}
+.row .editbox input{
+    margin: 0px;
+    padding: 10px;
+}
+
+.editbox .actions{
+    width: 100%;
+    display: flex;
+    justify-content: space-around;
+}
+
+.editbox .actions svg{
+    fill: #ffffff;
+    box-shadow: 0px 0px 12px -1px grey;
+    background-color: #80808036;
+    border-radius: 100%;
+    height: 100%;
+    padding: 10px;
+}
+
+.editbox .actions > :nth-child(n){
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    cursor: pointer;
+
+}                
+.contenthold .shadower{
+    position: absolute;
+    z-index: 2;
+    right: 13px;
+    bottom: 0px;
+    height: calc(100% - 45px);
+    box-shadow: 0px 0px 20px 20px whitesmoke;
+}
+.contenthold .addnew{
+    position: absolute;
+    z-index: 3;
+    right: 10px;
+    padding: 10px;
+    bottom: 20px;
+}
+.tablearea{
+    margin-bottom: 60px;
+}
+
+.createchannel#update{
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    z-index: 20;
+}

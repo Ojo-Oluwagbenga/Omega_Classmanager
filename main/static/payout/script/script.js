@@ -160,27 +160,47 @@ $(".gallerysuper .enlarge").click(function(){
 })
 
 
+function setPageUp(){
+    console.log('setting up');
+    let has_d = $(".deadline_data .head").attr("bio");
+    console.log(has_d);
+    if (has_d == 1){
+        let vhold = $(".deadline_data .value");
+        let tdata = vhold.attr("bio");
+        tdata = new Date(tdata).toGMTString();
+        vhold.text(tdata);        
+    }
+    
+}
+setPageUp();
 
 function toggleswipe(){
-
+    
     if ($(".swipe-control").attr('status') == 0){    
         $(".itembiosuper").css({
-            "top":"50px",
+            "top":"20vh",
+            "height":"80vh"
         })
+        // $('html, body').animate({
+        //     scrollTop: '1000'
+        // }, 200);
+          
         $(".swipe-control").css({
             "transform": "rotate(180deg)"
         }).attr("status", 1);
     }else{
         $(".itembiosuper").css({
-            "top":"calc(55vh + 50px)",
+            "top":"75vh",
+            "height":"25vh"
         })
+        // $('html, body').animate({
+        //     scrollTop: '0'
+        // }, 200);
         $(".swipe-control").css({
             "transform": "rotate(0deg)"
         }).attr("status", 0);
     }
 }
-
-
 $(".swipe-control").click(function(){
     toggleswipe();
 })

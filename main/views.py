@@ -6,9 +6,10 @@ import qrcode
 from .models import *
 from django.http import HttpResponse
 import json
+from django.utils.safestring import mark_safe
 # from .backend.Recognition.Recog_api import *
 
-# Create your views here.
+# Create your views here. 
 
 def testpage(response):
     # test()
@@ -71,11 +72,70 @@ def signup(response):
 def dashboard(response):
     return render(response, "dashboard.html", {}) 
 
-def payout(response):
-    return render(response, "payout.html", {}) 
+def payout(response, pay_code):
+    
+    qset = PaymentChannel.objects.defer("id").filter(itemcode=pay_code).values()
+    # qset = Attendance.objects.filter(attendance_code=attendance_code).values('status', 'creatorid', 'attendance_code')
+    # print(qset)
+    user_code = 'loggeduser'
+
+    if (qset.count() == 0):
+        return HttpResponse("Invalid Url")
+
+    qset = qset[0]
+    
+    is_owner =  user_code == qset['creatorid']
+    qset['is_owner'] = is_owner
+    qset['description'] = mark_safe(qset['description'])
+
+    # qset['needed_data'] = json.dumps({
+    #     "name":qset['name'],
+    #     "is_owner":is_owner,
+    #     "channel_code":qset['itemcode'],
+    #     "isowner":user_verified,
+    #     "description":qset['description'],
+    #     "imageset":qset['imageset'],
+    # })
+
+
+    return render(response, "payout.html", qset) 
+
+
+def classdata(response, classcode_day_dclcode):
+
+    code2name = {
+        "md":"Monday",
+        "td":"Tuesday",
+        "wd": "Wednesday",
+        "thd":"Thursday",
+        "fd":"Friday",
+        "std":"Saturday",
+        "snd":"Sunday",
+    }
+
+    datapack = classcode_day_dclcode.split("_")
+    
+    
+
+    needed_data = {
+        "class_code" : datapack[0],
+        "day" : code2name[datapack[1]],
+        "dc_code" : datapack[2],
+    }
+
+    instream = {
+        'needed_data':json.dumps(needed_data)
+    }
+
+    return render(response, "classdata.html", instream) 
+
 
 def createchannel(response):
     return render(response, "createchannel.html", {}) 
+
+def attendance_data(response):
+    return render(response, "attendance_data.html", {}) 
+    
 
 
 def takeattendance(response):
@@ -84,6 +144,15 @@ def takeattendance(response):
     
 def createattendance(response):
     return render(response, "createattendance.html", {}) 
+
+def account(response):
+    return render(response, "account.html", {}) 
+
+def notifications(response):
+    return render(response, "notifications.html", {}) 
+
+def edittimetable(response):
+    return render(response, "edittimetable.html", {}) 
 
 def initiateattendance(response, attendance_code):
 
@@ -99,8 +168,9 @@ def initiateattendance(response, attendance_code):
 
     qset = qset[0]
     user_verified = True 
+    mindex = qset['attendance_data']['mark_index']
     try:
-        user_pack = qset['attendance_data']['marked_users'][user_code]
+        user_pack = qset['attendance_data']['marked_users_' + str(mindex)][user_code]
     except:
         user_verified = False 
     

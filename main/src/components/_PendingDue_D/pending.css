@@ -1,0 +1,117 @@
+.pending-head{
+    display: flex;
+    justify-content: space-between;
+    padding: 10px 1rem;
+    font-size: 1rem;
+}
+.pending-head .pending{
+    display: flex;
+}
+.pending-head .pending span{
+    margin-left: 15px;
+}
+.pending-head .head-svg{
+    height: 13px;
+}
+.seeall:hover{
+cursor: pointer;
+}
+.box-row{
+    display:flex;
+    overflow-x: scroll;
+}
+
+.box{
+    padding: 5px 10px;
+    min-width: max-content;
+    margin-left: 19px;
+    background-color: #711dd8;
+    box-shadow: 0px 1.27438px 3.82313px rgb(0 0 0 / 15%);
+    border-radius: 10px;
+}
+
+.inner-box{
+    width:auto;
+    /* position:relative; */
+    color:#fff;
+}
+.inner-box .c-bio-out{
+    display: flex;
+    justify-content: space-between;
+    padding: 5px;
+}
+
+.box p{
+    font-size: .7rem;
+    padding:5px;
+}
+.box h5{
+    font-size:.8rem;
+    font-weight:400;
+    padding:5px;  
+}
+.box .amount{
+    display: flex;
+    align-items: center;
+}
+
+.amount > img {
+    margin-right: 0.3rem;
+}
+.box h4{
+font-size:1rem;
+font-weight: 550;
+}
+
+.pay-box{
+margin-top:0;
+margin-left: 45px;
+cursor: pointer;
+}
+.pay-box a{ 
+padding:.2rem;
+background-color:#fff;
+color:#711dd8;
+border-radius:4px;
+text-decoration:none;
+font-weight:bold;
+}
+.inner-boxtwo{
+width:auto;
+color:#fff;
+}
+.inner-boxtwo h4{
+font-size: 1rem;
+font-weight:600;
+}
+.inner-boxtwo h5{
+padding-bottom:0.5rem;
+}
+.inner-boxtwo .hspace{
+white-space: nowrap;
+font-size: 13px;
+font-weight: bold;
+padding: 3px 0;
+width: 150px;
+overflow: hidden;
+text-overflow: ellipsis;
+
+}
+.inner-boxtwo .status{
+text-align: right;
+padding: 5px 0px;
+}
+.inner-boxtwo .status span{
+font-weight: bold;
+padding: 4px 0px; 
+border-radius: 5px;
+}
+.inner-boxtwo .status span .s0{
+color: yellow;
+}
+.inner-boxtwo .status span .s1{
+color: green;
+}
+.inner-boxtwo .status span .s2{
+color: red;
+}

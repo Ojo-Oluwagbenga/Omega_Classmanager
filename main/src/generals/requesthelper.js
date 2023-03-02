@@ -41,4 +41,14 @@ export default class Helper {
         }
     }
 
+    initiateListeners(){
+        EMPIRICAL['listeners'] = {}
+    }
+    registerListener(addr, callback){
+        EMPIRICAL.listeners[addr] = callback
+    }
+    sendParcel(addr, parcel){
+        EMPIRICAL.listeners[addr].listener(parcel);
+    }
+
 }

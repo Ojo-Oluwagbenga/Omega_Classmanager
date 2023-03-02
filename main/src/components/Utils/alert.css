@@ -1,0 +1,40 @@
+.alertsuper{
+    position: fixed;
+    top: 0px;
+    left: 0px;
+    z-index: 10;
+    width: 100%;
+    height: 100vh;                    
+}
+
+.alertbox{                    
+    width: 80%;
+    padding: 10px;
+    margin: 0px auto;
+    max-width: 300px;
+    border-radius: 10px;
+    box-shadow: 0px 0px 20px 2px grey;
+    background-color: white;
+}
+.alertbox .head{
+    font-weight: bold;
+    text-align: center;
+    padding: 10px 0px;
+    border-bottom: 1px solid grey;
+}    
+.alertbox .text{
+    padding: 20px 10px;
+    font-size: 15px;
+}
+.alertbox .but-hold{
+    display: flex;
+    justify-content: space-around;
+}
+.alertbox .but-hold > :nth-child(n){
+    padding: 10px;
+    cursor: pointer;
+    font-size: 13px;
+    font-weight: bold;
+    background-color: whitesmoke;
+    border-radius: 10px;
+}

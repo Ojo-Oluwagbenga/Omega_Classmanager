@@ -1,8 +1,15 @@
 
-
+body, html{
+    scroll-behavior: smooth;
+}
 .content-area{ 
     display: flex;
     justify-content: space-around;
+}
+.top-nav{
+    position: fixed;
+    width: 100%;
+    z-index: 2;
 }
 
 .editsuper{
@@ -16,6 +23,7 @@
 
 .gallerysuper{
     height: 55vh;
+    width: 100vw;
     position: relative;
     /* box-shadow: 2px 0px 17px -3px #d1b0b0; */
 }
@@ -95,19 +103,22 @@
 }
 
 .itembiosuper{
-    position: absolute;
-    top: calc(55vh + 50px);
-    z-index: 3;
+    position: fixed;
+    top: 75vh;
+    height: 25vh;
+    z-index: 203;
+    width: 100%;
     bottom: 0vh;
     background-color: whitesmoke;
     border-radius: 30px 30px 0px 0px;
     box-shadow: 0px 0px 23px 0px grey;
-    transition: top 0.3s ease-in;
+    transition: all 0.3s ease-in;
 }
 .itembio{
     position: relative;
     height: 100%;
     padding: 10px;
+    z-index: 200;
     padding-top: 25px;
 }
 
@@ -134,12 +145,40 @@
 
 .itembio .innerscroll{
     height: 100%;
-    overflow-x: scroll;
+    display: flex;
+    z-index: 200;
+    flex-direction: column;
+    overflow-y: scroll;
+    padding-bottom: 70px;
 }
+.otherpays{
+    margin-top: 20px;
+    padding: 10px;
+}
+.otherpays .head{
+    font-weight: bold;
+    font-size: 18px;
+    padding: 10px 0;
+}
+.otherpays .pending-head{
+    display: none;
+}
+.otherpays .box-row{
+    display: block;
+    overflow-x:hidden;
+}
+
+.otherpays .box{
+    width: 95%;
+    margin: 10px auto;
+}
+
+
 .product-super{
     position: relative;
     width: 100%;
-    height: calc(100vh - 80px);
+    height: 100vh;
+    background-color: whitesmoke;
 }
 .product-super h2{
     font-weight: bold;
@@ -147,8 +186,10 @@
     margin-bottom: 20px;
 }
 .product-super .prod-image-hold{
-    position: relative;
-    overflow: hidden;               
+    position: fixed;
+    top: 80px;
+    overflow: hidden;
+    z-index: 0;               
 }
 .product-super .name-price{
     display: flex;
@@ -159,25 +200,50 @@
     display: flex;
     align-items: end;
     width: 50%;
+    max-width: 200px;
+    align-self: flex-end;
+    min-width: max-content;
     justify-content: center;
     padding: 10px;
     font-size: 12px;
     border-radius: 30px;
     color: white;
-    background-color: rgb(83, 13, 8);
-    margin-left: 50%;
+    background-color: rgb(113 29 216);
     cursor: pointer;
+    margin-right: calc(2.5% + 10px)
 }
-.product-super .description{
-    padding: 10px;
+.product-super .bio{
+    padding: 10px 9px;
+    display: flex;
+    width: 95%;
+    border-radius: 6px;
+    background-color: white;
+    margin: 10px auto;
+}
+.product-super .bio .head{
+    /* font-size: 16px; */
+}
+.product-super .bio .value{
+    font-weight: normal;
+    margin: 0px 10px;
+}
+.product-super .deadline_data{
+    font-size: 14px;
+}
 
+
+.product-super div.description{
+    display: block;
+    background-color: unset;
 }
-/* .product-super .description > h2{
-    font-size: 13px;
-} */
+.product-super div.description .head{
+    font-weight: bold;
+}
+
 .description .body{
     padding: 10px;
-    font-size: 15px;
+    font-size: 13px;
+    color: rgb(87, 87, 87);
 }
 .product-super .variation{
     padding: 10px;
@@ -198,30 +264,4 @@
 }
 .product-super .reviews{
     padding:10px;
-}
-.reviews .revpack{
-    padding: 20px;
-    border-radius: 10px;
-    background-color: white;
-    font-size: 14px;
-    margin: 20px 0;    
-}
-.revpack .reverinfo{
-    display: flex;
-}
-.revpack .reverinfo .reverimg{
-    width: 40px;
-    height: 40px;
-    border-radius: 50%;
-    background-color: brown;
-    margin: 0px;
-    margin-right: 10px;
-    text-align: center;
-}
-.reviews .revpack .revbody{
-    padding: 10px;
-}
-.reviews .revpack .role{
-    font-size: 12px;
-    color: grey;
 }

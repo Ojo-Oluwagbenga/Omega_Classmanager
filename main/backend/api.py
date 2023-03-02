@@ -14,6 +14,9 @@ import base64
 import numpy as np
 import qrcode
 
+from channels.layers import get_channel_layer
+from asgiref.sync import async_to_sync
+
 from PIL import Image
 
 
@@ -99,6 +102,21 @@ class APIgenerals:
             }
         return ret
 
+    def generalFetch(**kwargs):
+        model = kwargs['model']
+        fetchset = kwargs['fetchset']
+        fetchpair = kwargs['fetchpair']
+
+        disallowed = kwargs.get('disallowed', ['id'])
+
+        for x in disallowed:
+            if x in fetchset:
+                fetchset.remove(x)
+
+        datas = model.objects.values(*fetchset).filter(**fetchpair)
+
+        return [*datas]
+
     def delete_model_data(**kwargs):
         model = kwargs['model']
         searches = kwargs['searches']
@@ -111,7 +129,6 @@ class APIgenerals:
             'message':ret,
         }
 
-
 class UserAPI(View):
 
     extraverify ={
@@ -119,7 +136,6 @@ class UserAPI(View):
         'name':[4, 20, 'def'],
         'password':[4, 20, 'idef']
     }
-
 
     def create(self, response):
         if (response.method == "POST"):
@@ -180,9 +196,9 @@ class UserAPI(View):
         if (response.method == "POST"):
             data =  json.loads(json.loads(response.body.decode('utf-8')).get('payload', '{}'))
             
+           
             ret = APIgenerals.get_model_data(model=self.model, columns=data.get('columns'), searches=data.get('searches'))
             
-
             return HttpResponse(json.dumps(ret))
         else:
             return HttpResponse("<div style='position: fixed; height: 100vhb ; width: 100vw; text-align:center; display: flex; justify-content: center; flex-direction: column; font-weight:bold>Page Not accessible<div>")
@@ -228,7 +244,8 @@ class UserAPI(View):
 
 class PaychannelAPI:
     model = PaymentChannel
-    extraverify ={
+
+    extraverify = {
         'name':[4, 20, 'def'],
     }
 
@@ -296,18 +313,57 @@ class PaychannelAPI:
             return HttpResponse("<div style='position: fixed; height: 100vh; width: 100vw; text-align:center; display: flex; justify-content: center; flex-direction: column; font-weight:bold>Page Not accessible<div>")
     
     def fetch(self, response):
-        if (response.method == "POST"):
-            data =  json.loads(response.body.decode('utf-8')).get('payload', '{}')
+        if (response.method == "POST"):  
+                        
+            fetchpair =  json.loads(response.body.decode('utf-8')).get('fetchpair', {})
+            fetchset =  json.loads(response.body.decode('utf-8')).get('fetchset', [])
+
+                     
+            retpack = APIgenerals.generalFetch(model=PaymentChannel, fetchset=fetchset, fetchpair=fetchpair)        
+            # return HttpResponse(json.dumps('ret'))   
+
+            callresponse = {
+                'passed': True,
+                'response':200,
+                'queryset':retpack
+            }
+            return  HttpResponse(json.dumps(callresponse)) 
             
-            ret = APIgenerals.get_model_data(model=self.model, columns=data.get('columns'), searches=data.get('searches'))
-            
-            return HttpResponse(json.dumps(ret))
         else:
-            return HttpResponse("<div style='position: fixed; height: 100vhb ; width: 100vw; text-align:center; display: flex; justify-content: center; flex-direction: column; font-weight:bold>Page Not accessible<div>")
+            return HttpResponse("<div style='position: fixed; height: 100vh; width: 100vw; text-align:center; display: flex; justify-content: center; flex-direction: column; font-weight:bold>Page Not accessible<div>")
 
     def testupdate(self, response):
         if (response.method == "POST"):
             # data =  json.loads(response.body.decode('utf-8')).get('payload', '{}')
+            
+
+            # thing = PaymentChannel.objects.get(id=3) 
+            # thing.imageset['nod']['n_node'] = 'green'
+            # thing.save()
+
+            thing = PaymentChannel.objects.filter(id__gt=1).values()
+            # thing.pop("_state")
+            print (list(thing))
+            ret = []
+
+            ret.append(list(thing))
+            # print (dir(thing))
+            # thing.imageset['nod']['n_node'] = 'blue'
+            # thing.save()
+
+            # # ret = APIgenerals.get_model_data(model=self.model, columns=data.get('columns'), searches=data.get('searches'))
+            
+            # print (dir(thing))
+            return HttpResponse(json.dumps(ret))
+        else:
+            return HttpResponse("<div style='position: fixed; height: 100vhb ; width: 100vw; text-align:center; display: flex; justify-content: center; flex-direction: column; font-weight:bold>Page Not accessible<div>")
+
+    def add_pay_comment(self, response):
+        if (response.method == "POST"):
+            data =  json.loads(response.body.decode('utf-8')).get('payload', '{}')
+
+            text = payload['text']
+            parent = payload['text']
             
 
             # thing = PaymentChannel.objects.get(id=3) 
@@ -336,24 +392,28 @@ class AttendanceAPI:
     extraverify={ 
         
     }
+
     def create(self, response):
         if (response.method == "POST"):  
             data =  json.loads(response.body.decode('utf-8')).get('payload')
 
+            # return HttpResponse(json.dumps("callresponse"))
             # Collect the time in the digits value if has_deadline
             x = datetime.datetime.now()
             # mdate = x.strftime("%H") + ":"+ x.strftime("%M") +" on "+ x.strftime("%A") +", "+ x.strftime("%d") +"-"+ x.strftime("%b") +"-"+ x.strftime("%Y")
             mdate = x.strftime("%H") + ":"+ x.strftime("%M") +" on "+ x.strftime("%A") +", "+ x.strftime("%d") +"-"+ x.strftime("%b")
             
+            data['description'] = '-' if data['description'] == "" else data['description']
             data['attendance_code'] = "init" 
             data['status'] = "0" 
             data['attendance_data'] = {
-                "marked_users":{
+                "mark_index":0,
+                "marked_users_0":{
                     data['creatorid']:{
-                        "user_code":data['creatorid'],      
-                        "time":mdate,
-                        "parent_opener":'base',
-                        "opened_count":0,
+                        "user_code":data['creatorid'], 
+                        "time":data["time"],
+                        "parent_opener":'base', #The person that generated the code for the user
+                        "opened_count":0, #The total number of people this has opened for
                     }
                 },
             }
@@ -362,9 +422,20 @@ class AttendanceAPI:
 
             if (sl.is_valid()):
                 callresponse = sl.callresponse
-                if data["notify"] == 'true':
-                    pass
-                    # Send Notification to all the seleceted members;
+                
+                url = 'the_url_here'
+                NotificationAPI.send({
+                    "callback_url":url,
+                    "text":"Attendance poll created for " + data['course_code'] + " Coming up on " + data['timename'], 
+                    "time":data['time'],
+                    "category":"cla", 
+                    # "owners":[*data["classes"]],  
+                    "owners":["__all__"], 
+                    "otherdata":{}, #Any other data useful for that notification
+                })
+
+                # return HttpResponse(json.dumps(callresponse))
+                
                 
             else:
                 callresponse = sl.cError()
@@ -437,9 +508,12 @@ class AttendanceAPI:
 
             attendance_code = data['attendance_code']
             user_code = data['user_code']
+            # mark_index = data['mark_index']
+            mark_index = 0
 
+            attd_dataname = 'marked_users_'+ str(mark_index)
             query = {
-                # 'attendance_data__marked_users__'+user_code+'__user_code': user_code,
+                'attendance_data__'+attd_dataname+'__'+user_code+'__user_code': user_code,
                 'attendance_code':attendance_code
             }
 
@@ -459,15 +533,15 @@ class AttendanceAPI:
             attd = attd[0]
 
             print(attd)
-            inicount = attd.attendance_data['marked_users'][user_code]['opened_count'] 
+            inicount = attd.attendance_data[attd_dataname][user_code]['opened_count'] 
             inicount = int(inicount) + 1           
-            attd.attendance_data['marked_users'][user_code]['opened_count'] = inicount
+            attd.attendance_data[attd_dataname][user_code]['opened_count'] = inicount
             # attd.save()
 
 
 
-            # Be like uen-scd-1|2
-            stringbase = attendance_code + "-" + user_code + "-" + str(inicount) + "|"
+            # Be like attd_code-markeduser_0-user_code-1|2
+            stringbase = attendance_code + "-" + attd_dataname + "-" + user_code + "-" + str(inicount) + "|"
             imageset = []
             for x in range(20):
                 stringname = stringbase + str(x)
@@ -478,10 +552,7 @@ class AttendanceAPI:
 
                 img_base64 = bytes("data:image/jpeg;base64,", encoding='utf-8') + img_str
 
-                # return  HttpResponse([img_base64])
-                # img_base64 = str(img_base64)
-
-                imageset.append(img_base64.decode())        
+                imageset.append(img_base64.decode())
 
 
             # print(img_base64)
@@ -543,7 +614,7 @@ class AttendanceAPI:
             attds = Attendance.objects.filter(**query)
             print (attds)          
 
-            if (attds.count == 0):
+            if not attds:
                 callresponse = {
                     'passed': True,
                     'response':200,
@@ -599,7 +670,6 @@ class AttendanceAPI:
         else:
             return HttpResponse("<div style='position: fixed; height: 100vh; width: 100vw; text-align:center; display: flex; justify-content: center; flex-direction: column; font-weight:bold>Page Not accessible<div>")
 
-
     def activateattendance(self, response):
         if (response.method == "POST"):  
             attendance_code =  json.loads(response.body.decode('utf-8')).get('attendance_code', '')
@@ -644,4 +714,653 @@ class AttendanceAPI:
             
         else:
             return HttpResponse("<div style='position: fixed; height: 100vh; width: 100vw; text-align:center; display: flex; justify-content: center; flex-direction: column; font-weight:bold>Page Not accessible<div>")
+
+class ClassAPI:
+    extraverify={
+
+    }
+    
+
+    def create(self, response):
+        if (response.method == "POST"):
+            data =  json.loads(response.body.decode('utf-8')).get('payload')            
+            
+            # channel_layer = get_channel_layer()
+
+            # async_to_sync(channel_layer.group_send)(
+            #     "grouptest",
+            #     {
+            #         "type": "chatmessages",
+            #         "message": "Freak",
+            #     },
+            # )
+
+            return HttpResponse("Family")
+            data['class_code'] = "init" 
+            data['timetable'] = {
+                'tableset':{
+                    "Monday":[],
+                    "Tuesday":[],
+                    "Wednesday":[],
+                    "Thursday":[],
+                    "Friday":[],
+                    "Saturday":[],
+                    "Sunday":[],
+                },
+                "tabledata":{}
+            }
+            sl = ModelSL(data=data, model=Class, extraverify=self.extraverify)
+
+            if (sl.is_valid()):
+                callresponse = sl.callresponse
+                
+            else:
+                callresponse = sl.cError()
+
+            if (callresponse['passed']):
+                ins_id = sl.save().__dict__['id']
+                sl.validated_data['class_code'] = numberEncode(ins_id, 5)
+                sl.save()
+                callresponse['response']['class_code'] = sl.validated_data['class_code']
+                    
+            return HttpResponse(json.dumps(callresponse))
+
+        else:
+            return HttpResponse("<div style='position: fixed; height: 100vh; width: 100vw; text-align:center; display: flex; justify-content: center; flex-direction: column; font-weight:bold>Page Not accessible<div>")
+    
+    def good_data(val):
+        return ((val is not None) and val != '')
+
+    def update_timetable(self, response):
+        if (response.method == "POST"):   
+            data =  json.loads(response.body.decode('utf-8')).get('payload') 
+
+            # Verify if user is owner
+            timetable_data = data['timetable_data']
+            rep_code = data['rep_code']
+            class_code = data['class_code'] 
+            all_codes = data['all_codes'] 
+
+
+
+            allowed = ['Monday', "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"]
+            errorset = {}
+            errored = False
+
+            
+            new_inserts = []
+            for day in timetable_data:
+                if (day not in allowed):
+                    errorset['Day'] = day + " is not allowed"
+                else:
+                    itnum = 0
+                    day_classes = timetable_data[day]                    
+                    for row in day_classes:                        
+                        code = row['daycl_code']
+
+                        if (code.isnumeric()):
+                            ncode = "000" + code
+
+                            while (numberEncode(ncode, len(ncode)) in all_codes):
+                                ncode += "i0"
+
+                            ncode = numberEncode(ncode, len(ncode))
+                            ncode = ncode+"i" if ncode.isnumeric() else ncode
+                            row['daycl_code'] = ncode
+                            new_inserts.append(ncode)
+
+                        for key in row:
+                            if (not self.good_data(row[key]) and key != 'extrainfo'):
+                                errorset[day+"|"+str(itnum)+"|"+key] = day + "'s item "+ str(itnum) + " "+ key + " is not entered"
+                        
+                        itnum += 1
+            
+            
+            if (errorset):
+                callresponse = {
+                    'passed': False,
+                    'response':201,
+                    'error':errorset,
+                }
+                return HttpResponse(json.dumps(callresponse))
+
+
+            query = {
+                'rep_code': rep_code,
+                'class_code': class_code
+            }             
+
+            qsets = Class.objects.filter(**query)
+
+            if not qsets:
+                callresponse = {
+                    'passed': True,
+                    'response':201,
+                    'error':"Class does not exist",
+                }
+                return HttpResponse(json.dumps(callresponse))      
+
+            qset = qsets[0]
+            qset.timetable['tableset'] = timetable_data
+
+            for ins in new_inserts:
+                qset.timetable['tabledata'][ins] = {
+                    'comments':{
+                        'replies':{}
+                    }
+                }
+
+            qset.save()
+            
+            callresponse = {
+                'passed': True,
+                'response':200,
+                'class_code':class_code,
+            }
+
+            return HttpResponse(json.dumps(callresponse))
+
+        else:
+            return HttpResponse("<div style='position: fixed; height: 100vh; width: 100vw; text-align:center; display: flex; justify-content: center; flex-direction: column; font-weight:bold>Page Not accessible<div>")
+    
+    def fetch(self, response):
+        if (response.method == "POST"):  
+                        
+            fetchpair =  json.loads(response.body.decode('utf-8')).get('fetchpair', {})
+            fetchset =  json.loads(response.body.decode('utf-8')).get('fetchset', [])
+
+                     
+            retpack = APIgenerals.generalFetch(model=Class, fetchset=fetchset, fetchpair=fetchpair)        
+            # return HttpResponse(json.dumps('ret'))   
+
+            callresponse = {
+                'passed': True,
+                'response':200,
+                'queryset':retpack
+            }
+            return  HttpResponse(json.dumps(callresponse)) 
+            
+        else:
+            return HttpResponse("<div style='position: fixed; height: 100vh; width: 100vw; text-align:center; display: flex; justify-content: center; flex-direction: column; font-weight:bold>Page Not accessible<div>")
+
+    def fetchtable(self, response):
+        if (response.method == "POST"):  
+                        
+            fetchpair =  json.loads(response.body.decode('utf-8')).get('fetchpair', {})
+
+            qsets = Class.objects.values('timetable__tableset').filter(**fetchpair)
+
+            if not qsets:
+                callresponse = {
+                    'passed': True,
+                    'response':201,
+                    'queryset':[]
+
+                }
+                return HttpResponse(json.dumps(callresponse))      
+
+            callresponse = {
+                'passed': True,
+                'response':200,
+                'queryset':qsets[0]['timetable__tableset']
+            }
+            return  HttpResponse(json.dumps(callresponse)) 
+            
+        else:
+            return HttpResponse("<div style='position: fixed; height: 100vh; width: 100vw; text-align:center; display: flex; justify-content: center; flex-direction: column; font-weight:bold>Page Not accessible<div>")
+
+    def fetch_dayclass(self, response):
+        if (response.method == "POST"):  
+            data =  json.loads(response.body.decode('utf-8')) 
+
+            class_code = data['class_code']
+            dc_code = data['dc_code']
+            day = data['day']
+
+            # class_code = "6MBy4"
+            # dc_code = "x4RL"
+            # day = "Monday"
+
+            fetchset = ["timetable__tableset__"+day, "timetable__tabledata__"+dc_code]
+            qset = Class.objects.defer("id").filter(class_code=class_code).values(*fetchset)
+
+            print(qset)
+
+            if (qset.count() == 0):
+                callresponse = {
+                    'passed': True,
+                    'response':201,
+                    'queryset':[]
+                }
+                return HttpResponse(json.dumps(callresponse))
+            
+            qset = qset[0]
+
+
+            retset = {}
+            retset['tabledata'] = qset['timetable__tabledata__' + dc_code]
+
+            if (retset == {}):
+                callresponse = {
+                    'passed': True,
+                    'response':201,
+                    'queryset':[]
+                }
+
+            tableset_day = qset["timetable__tableset__"+day]
+
+            for classs in tableset_day:
+                if (classs["daycl_code"] == dc_code):
+                    retset['tableset'] = classs
+                    break
+
+
+            callresponse = {
+                'passed': True,
+                'response':200,
+                'queryset':retset
+            }
+            return  HttpResponse(json.dumps(callresponse)) 
+            
+        else:
+            return HttpResponse("<div style='position: fixed; height: 100vh; width: 100vw; text-align:center; display: flex; justify-content: center; flex-direction: column; font-weight:bold>Page Not accessible<div>")
+
+    myval = 0
+    def add_timetable_comment(self, response):
+        if (response.method == "POST"):   
+
+            data =  json.loads(response.body.decode('utf-8'))
+            #SEE COMMENT STRUCTURE IN classmanager/main/c_structure.txt
+            
+            callresponse = {
+                'passed': True,
+                'response':200,
+                'comment_code':"comment_code",
+            }                           
+
+            text = data['text']
+            address = data['address']   # Address is sent as "comments|...|cmt-1|cmt-4" As in  ...|grandparent|parent
+            user_code = data['user_code']
+            class_code = data['class_code']
+            dayclass_code = data['dayclass_code']
+            owner = data['owner'] #Should contain the name, user_code at least
+            parent_owner = data['parent_owner'] #Should contain the user_code at least
+            date = data["date"]
+            url = data["url"]
+
+            print("------------", date)
+
+            comment_set = {
+                'text':text,
+                'user_code':user_code,
+                "parent_address":address,
+                'comment_code':"comment_code",
+                "date":date,
+                "owner":{
+                    "user_code":owner["user_code"],
+                    "name":owner["name"],
+                },
+                "parent_owner":{
+                    "user_code":parent_owner["user_code"],
+                },
+                'replies':{}
+            }
+
+            code = class_code + "_" + dayclass_code
+            channel_layer = get_channel_layer()
+            async_to_sync(channel_layer.group_send)(
+                code,
+                {
+                    "type": "mono_disburse",    #Calling the function ddefined in the consumer here
+                    "message": comment_set,
+                },
+            )
+
+            #Send message to rep if parent_owner code is comment else 
+            
+
+            NotificationAPI.send({
+                "callback_url":url,
+                "text":owner["name"] + ' replied to your comment - <b>"' + (sanitize_html(text)) + '"</b>',
+                "time":date,
+                "category":"soc", 
+                # "owners":[parent_owner["user_code"]],  
+                "owners":["__all__"], 
+                "otherdata":{}, #Any other data useful for that notification
+            })
+            
+ 
+            return HttpResponse(json.dumps(callresponse))  
+
+            
+            query = {
+                'timetable__tabledata__has_key' : dayclass_code,
+                'class_code': class_code
+            }             
+
+            qsets = Class.objects.filter(**query)
+
+            if not qsets:
+                callresponse = {
+                    'passed': False,
+                    'response':201,
+                    'error':"Class does not exist",
+                }
+                return HttpResponse(json.dumps(callresponse))      
+
+            qset = qsets[0]
+            
+            iniStr = "self.myval = len(qset.timetable['tabledata'][dayclass_code]" + self.buildstring(address) + ")"
+            exec(iniStr)
+            comment_code = str(self.myval).zfill(5) + "_" + user_code    
+
+            #Don't worry, self address are auto built by self by catting paddr|ucode ;)
+            comment_set = {
+                'text':text,
+                'user_code':user_code,
+                "parent_address":address,
+                'comment_code':comment_code,
+                "owner":{
+                    "user_code":owner["user_code"],
+                    "name":owner["name"],
+                },
+                "parent_owner":{
+                    "user_code":parent_owner["user_code"],
+                },
+                'replies':{}
+            }
+
+            majstring = "qset.timetable['tabledata'][dayclass_code]" + self.buildstring(address) + "['"+comment_code+"'] = comment_set"
+            exec(majstring)
+
+            qset.save()
+
+            code = class_code + "_" + dayclass_code
+
+            #Sending to all users on this item page
+            channel_layer = get_channel_layer()
+            async_to_sync(channel_layer.group_send)(
+                code,
+                {
+                    "type": "mono_disburse",    #Calling the function ddefined in the consumer here
+                    "message": comment_set,
+                },
+            )
+            
+            
+            callresponse = {
+                'passed': True,
+                'response':200,
+                'comment_code':comment_code,
+            }
+
+            return HttpResponse(json.dumps(callresponse))
+
+        else:
+            return HttpResponse("<div style='position: fixed; height: 100vh; width: 100vw; text-align:center; display: flex; justify-content: center; flex-direction: column; font-weight:bold>Page Not accessible<div>")
+    
+    def update_timetable_comment(self, response):
+        if (response.method == "POST"):   
+
+            callresponse = {
+                'passed': True,
+                'response':200,
+                'comment_code':"comment_code",
+            }
+
+            return HttpResponse(json.dumps(callresponse))
+
+            data =  json.loads(response.body.decode('utf-8'))
+            #SEE COMMENT STRUCTURE IN classmanager/main/c_structure.txt
+            
+            text = data['text']
+            parent_address = data['parent_address']   # Address is sent as "comments|...|cmt-1|cmt-4" As in  ...|grandparent|parent
+            comment_code = data['comment_code']
+            
+            class_code = data['class_code']
+            dayclass_code = data['dayclass_code']
+
+            query = {
+                'timetable__tabledata__has_key' : dayclass_code,
+                'class_code': class_code
+            }             
+
+            qsets = Class.objects.filter(**query)
+
+            if not qsets:
+                callresponse = {
+                    'passed': False,
+                    'response':201,
+                    'error':"Class does not exist",
+                }
+                return HttpResponse(json.dumps(callresponse))      
+
+            qset = qsets[0]
+            
+
+            majstring = "qset.timetable['tabledata'][dayclass_code]" + self.buildstring(parent_address) + "['"+comment_code+"']['text'] = text"
+            exec(majstring)
+
+            qset.save()
+            
+            callresponse = {
+                'passed': True,
+                'response':200,
+                'comment_code':comment_code,
+            }
+
+            return HttpResponse(json.dumps(callresponse))
+
+        else:
+            return HttpResponse("<div style='position: fixed; height: 100vh; width: 100vw; text-align:center; display: flex; justify-content: center; flex-direction: column; font-weight:bold>Page Not accessible<div>")
+    
+
+    def delete_timetable_comment(self, response):
+        if (response.method == "POST"):   
+
+            callresponse = {
+                'passed': True,
+                'response':200,
+                'comment_code':"comment_code",
+            }
+
+            return HttpResponse(json.dumps(callresponse))
+            
+            data =  json.loads(response.body.decode('utf-8'))
+
+            parent_address = data['parent_address']   # Address is sent as "comments|...|cmt-1|cmt-4" As in  ...|grandparent|parent|self
+            comment_code = data['comment_code']   # Address is sent as "comments|...|cmt-1|cmt-4" As in  ...|grandparent|parent|self
+            
+            class_code = data['class_code']
+            dayclass_code = data['dayclass_code']
+            
+
+            query = {
+                'timetable__tabledata__has_key' : dayclass_code,
+                'class_code': class_code
+            }             
+
+            qsets = Class.objects.filter(**query)
+
+            if not qsets:
+                callresponse = {
+                    'passed': False,
+                    'response':201,
+                    'error':"Class does not exist",
+                }
+                return HttpResponse(json.dumps(callresponse))      
+
+            qset = qsets[0]
+            
+
+            majstring = "delete qset.timetable['tabledata'][dayclass_code]" + self.buildstring(parent_address) + "['"+comment_code+"']"
+            exec(majstring)
+
+            qset.save()
+            
+            callresponse = {
+                'passed': True,
+                'response':200,
+                'comment_code':comment_code,
+            }
+
+            return HttpResponse(json.dumps(callresponse))
+
+        else:
+            return HttpResponse("<div style='position: fixed; height: 100vh; width: 100vw; text-align:center; display: flex; justify-content: center; flex-direction: column; font-weight:bold>Page Not accessible<div>")
+    
+    def buildstring(address):
+        addpack = address.split("|")
+        retstring = ''
+        for addr in addpack:
+            retstring += "['"+addr+"']" + "['replies']"
+        
+        return retstring
+
+class NotificationAPI:
+    
+    extraverify = {}
+    def fetch_user_notifications(self, response):
+        if (response.method == "POST"):  
+            data =  json.loads(response.body.decode('utf-8')) 
+
+            user_code = data['user_code']
+            class_code = data['class_code']
+
+            fetchset = []
+            querypair={
+                "owners__overlap":["__all__", "__"+class_code+"__", user_code] #Gets where the owners list contains any of the passed
+            }
+            qset = Notification.objects.defer("id").filter(**querypair).values()
+
+            if (qset.count() == 0):
+                callresponse = {
+                    'passed': False,
+                    'response':201,
+                    'queryset':[]
+                }
+                return HttpResponse(json.dumps(callresponse))
+            
+            qset = qset[0]
+
+
+            callresponse = {
+                'passed': True,
+                'response':200,
+                'queryset':qset
+            }
+            return  HttpResponse(json.dumps(callresponse)) 
+            
+        else:
+            return HttpResponse("<div style='position: fixed; height: 100vh; width: 100vw; text-align:center; display: flex; justify-content: center; flex-direction: column; font-weight:bold>Page Not accessible<div>")
+
+    def send(dataset):
+        #* owner_set is sent as 
+            #     ['__all__'] for every user on Omega class
+            #     ['__class_code1__', '__class_code2__'] for every user in a class
+            #     ['qvdy', "sded"] for every user as contained
+            # dataset sould be in format
+                # dataset = {
+                #     "callback_url":"curl",
+                #     "text":"text",
+                #     "time":"time",
+                #     "category":"category", 
+                    # "upd" for Updates(pay created, pay ending), 
+                    # "cla" for Class (concerning class creations, class updates, attendance creates)
+                    # "rem" for Reminder(class coming up, pay ending, pay not yet attendeds)
+                    # "soc" for socials (replies to comments, comments add);
+                    # 'exa' for exams (exams and test updates)
+                    # "gen" for general (paycomplete from omega, )
+                #     "owners":[] #As defined by owner_set above
+                #     "otherdata":{} #Any other data useful for that notification
+                # }
+        #
+
+        channel_layer = get_channel_layer()
+        for listener in dataset['owners']:
+            async_to_sync(channel_layer.group_send)(
+                "NOTIF_LISTENER_"+listener,
+                {
+                    "type": "mono_disburse", #Calling the function defined in the consumer here
+                    "message": dataset,
+                },
+            )
+        return
+
+
+        dataset['itemcode'] = "dummy"
+        sl = ModelSL(data=dataset, model=Notification, extraverify=self.extraverify)
+
+        if (sl.is_valid()):
+                callresponse = sl.callresponse                
+        else:
+            callresponse = sl.cError()
+
+        if (callresponse['passed']):
+            ins_id = sl.save().__dict__['id']
+            sl.validated_data['itemcode'] = numberEncode(ins_id, 6)
+            sl.save()
+            callresponse['response']['notification_code'] = sl.validated_data['itemcode']
+        
+        
+        for listener in dataset['owners']:
+            channel_layer = get_channel_layer()
+            async_to_sync(channel_layer.group_send)(
+                "NOTIF_LISTENER_"+listener,
+                {
+                    "type": "mono_disburse", #Calling the function defined in the consumer here
+                    "message": dataset,
+                },
+            )
+
+    def create(self, response):
+        if (response.method == "POST"):
+            data =  json.loads(response.body.decode('utf-8')).get('payload')            
+            
+            # channel_layer = get_channel_layer()
+
+            # async_to_sync(channel_layer.group_send)(
+            #     "grouptest",
+            #     {
+            #         "type": "chatmessages",
+            #         "message": "Freak",
+            #     },
+            # )
+
+            return HttpResponse("Family")
+            data['class_code'] = "init" 
+            data['timetable'] = {
+                'tableset':{
+                    "Monday":[],
+                    "Tuesday":[],
+                    "Wednesday":[],
+                    "Thursday":[],
+                    "Friday":[],
+                    "Saturday":[],
+                    "Sunday":[],
+                },
+                "tabledata":{}
+            }
+            sl = ModelSL(data=data, model=Class, extraverify=self.extraverify)
+
+            if (sl.is_valid()):
+                callresponse = sl.callresponse
+                
+            else:
+                callresponse = sl.cError()
+
+            if (callresponse['passed']):
+                ins_id = sl.save().__dict__['id']
+                sl.validated_data['class_code'] = numberEncode(ins_id, 5)
+                sl.save()
+                callresponse['response']['class_code'] = sl.validated_data['class_code']
+                    
+            return HttpResponse(json.dumps(callresponse))
+
+        else:
+            return HttpResponse("<div style='position: fixed; height: 100vh; width: 100vw; text-align:center; display: flex; justify-content: center; flex-direction: column; font-weight:bold>Page Not accessible<div>")
+   
+
+
+
 

@@ -1,6 +1,7 @@
 $(document).ready(function(){
 
     $("#create").click(function(){
+        popAlert("Creating channel, Please wait...");
         let payload = {
             "name":"",
             "price":"",
@@ -9,7 +10,7 @@ $(document).ready(function(){
             "deadline_text":"unset",
             "deadline_digit":"--",
             "imageset":"",
-        }    
+        }
         let error = 0 
 
         for (key in payload){
@@ -63,7 +64,19 @@ $(document).ready(function(){
                 data: {
                     payload: payload             
                 }
-            }).then(response => {console.log(response)})
+            }).then(response => {
+                response = response.data;
+
+                if (response.passed){
+                    popAlert("Channel created!, Redirecting...");
+                    setTimeout(() => {
+                        window.location.href = '/dashboard'
+                    }, 1200);
+                }else{
+                    popAlert("Unable to create channel. Check Entries");
+                }
+
+            })
             .catch(error => console.error(error))
         }
 
