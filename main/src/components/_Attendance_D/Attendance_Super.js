@@ -33,7 +33,7 @@ class Attendance_Super extends Component {
           meridian = 'PM';
         }
         return mdate + " at " +(hours + ':' + minutes + ' ' + meridian);
-      }
+    }
     
     getAttendanceData(){
         axios({
@@ -45,9 +45,10 @@ class Attendance_Super extends Component {
                 "X-CSRFToken" : $("input[name='csrfmiddlewaretoken']").val()
             },
             data: {
-                user_code:"loggeduser"
+                class_code:"MTH101"// The user class_code not mth101 ;)
             }
         }).then(response => {
+            console.log(response);
             response = response.data;
             if (response.passed){
                 const data = response.attendances

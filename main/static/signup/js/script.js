@@ -24,6 +24,7 @@ let datapack = {
         classcode:"",
         email:"",
         password:"",
+        password_again:"",
         bio:{
             head:"Sign up as a Class Member",
         }
@@ -35,6 +36,7 @@ let datapack = {
         repsecret:"",
         email:"",
         password:"",
+        password_again:"",
         bio:{
             head:"Sign up as the class Lead",
         }
@@ -42,6 +44,7 @@ let datapack = {
     instructor:{
         name:"",
         email:"",
+        password_again:"",
         password:"",
         bio:{
             head:"Sign up as an Instructor",
@@ -49,9 +52,7 @@ let datapack = {
     }
 }
 let submit_item = 0;
-let errorpack = {
-
-}
+let errorpack = {}
 
 // controls//
 $(".usertype").click(function(){
@@ -109,6 +110,8 @@ $("#select_complete").click(function(){
 })
 
 $("#userdetails .page-back").click(function(){
+    $(".errorpack").css("display","none");
+
     $(this).css("display", "none");
     $("#userselect").css({
         'display':'block'        
@@ -124,9 +127,14 @@ $("#userdetails .page-back").click(function(){
     }, 300);  
 })
 
+$(".page-col").click(function(){
+    $(this).find(".errorpack").css("display","none");
+})
+
 $("#sign-up").click(function(){
     //When the sign up button is clicked
 
+    
     $(".page-col .errorpack").remove();    
     errorpack = {
 
@@ -149,7 +157,7 @@ $("#sign-up").click(function(){
 
     console.log(submit_item);
     
-    if (errorpack.length == 0){
+    if (Object.keys(errorpack).length == 0){
         axios({
             method: 'POST',
             url: '../api/user/create',
@@ -159,7 +167,7 @@ $("#sign-up").click(function(){
                 "X-CSRFToken" : $("input[name='csrfmiddlewaretoken']").val()
             },
             data: {
-                payload: JSON.stringify(submit_item)
+                payload: submit_item
             }
         }).then(response => {
             console.log(response);
@@ -174,6 +182,8 @@ $("#sign-up").click(function(){
                 }
             }
         }).catch(error => console.error(error))  
+    }else{
+        console.log(errorpack);
     }
       
 

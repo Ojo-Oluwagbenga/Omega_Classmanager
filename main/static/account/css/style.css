@@ -13,6 +13,7 @@
 
 svg{
     height: 17px;
+    fill: #102870;
 }
 
 :root {
@@ -23,7 +24,7 @@ svg{
 body{
     width: 100%;
     max-height: 100vh;
-    background-color: rgb(232, 235, 238);
+    background-color: whitesmoke;
 }
 
 
@@ -44,6 +45,8 @@ body{
         margin: 0px auto;
         max-width: 767px;
         width: 100%;
+        position: relative;
+        top: -10px;
     }
 
     .navigation {
@@ -55,11 +58,17 @@ body{
     }
 
     /* Profil CSS */
+    .profile-super{
+        width: 90%;
+        margin: 20px auto;
+        background-color: #ebebeb;
+        box-shadow: 0px 0px 20px -2px grey;
+        border-radius:10px;
+        padding: 10px;
+    }
     .profile {
         display: flex;
         justify-content: flex-start;
-        margin: 50px auto 10px;
-        width: 90%;
         padding: 10px;
     }
 
@@ -92,8 +101,6 @@ body{
 
     .contact {
         display: block;
-        margin: 10px auto 0px;
-        width: 90%;
         color: grey;
         font-size: 15px;
     }
@@ -119,20 +126,63 @@ body{
     }
     /* Wallet and Orders Section */
     
-    .engagements {
-    /*  border: 1px solid rgb(3, 42, 94); */
-        margin-top: 5px;
+
+    div.class_data{
+        width: 90%;
+        background-color: white;
+        border-radius: 10px;
+        padding: 10px;
+        margin: 20px auto;
         display: flex;
-        text-align: center;
-        align-items: center;
-        justify-items: center;
-        padding: 10px 5px;
+        flex-direction: column;
     }
-    .engagements div {
-        border: 1px solid rgb(3, 42, 94);
-        padding: 20px 30px;
-        flex-basis: 50%;
+    .class_data .head{
+        font-size: 18px;
+        font-weight: bold;
     }
+    .class_data.others div.Flex{
+        margin-top: 5px;
+    }
+    .class_data .leave{
+        align-self: flex-end;
+        display: flex;
+        font-size: 14px;
+        width: max-content;
+        padding: 5px 10px;
+        color: red;
+        background-color: #ffeded;
+        fill: red;
+        border-radius: 5px;
+        cursor: pointer;
+    }
+    .class_data .leave > :nth-child(n){
+        align-self: center name
+    }
+    .class_data .name{
+        padding: 10px;
+        font-size: 15px;
+        color: grey;
+        text-align: left;
+    }
+    .class_data .name.udl{        
+        border-bottom: 1px dashed;
+        margin-bottom: 20px;
+    }
+    .right{
+        text-align: right;
+    }
+
+
+
+
+    .class_data .leave .icon svg{
+        fill: red;
+    }
+    .class_data .leave .icon{
+        margin: 5px 10px ;
+    }
+
+
 
     /* 5TH SECTION CONTAINING OTHER ITEMS BREFORE THE LOG OUT BUTTON */
     .others{
@@ -144,9 +194,8 @@ body{
     .others .Flex {
         padding: 5px 10px;
         box-shadow: rgb(209, 209, 209);
-
-    /* border: 0.5px solid  rgb(3, 42, 94);
-        border-radius: 10px; */
+        cursor: pointer;
+        color: #102870;
         margin-top: 10px;
         display: flex;
         justify-content: flex-start;
@@ -158,40 +207,21 @@ body{
     }
     .others .Flex .content {
         margin-left: 20px;
-        font-size: 16px;
+        font-size: 15px;
         font-weight: 50px;
     }
     /* LOG OUT */
-    .log-out {
-        width: 90%;
-        display: flex;
-        padding: 5px 0px;
-        margin: 10px auto 0px;
-        font-size: 16px;
+    div.log-out.Flex {
+        margin-top: 30px;
+        margin-bottom: 30px;
+        box-shadow: 0px 0px 10px -2px grey;
+        border-radius: 9px;
+        justify-content: center;
     }
 
-    .log-out .Flex {
-        padding: 5px 0px;
-        box-shadow: rgb(209, 209, 209);
-
-    /* border: 0.5px solid  rgb(3, 42, 94);
-        border-radius: 10px; */
-        margin-top: 10px;
-        display: flex;
-        justify-content: flex-start;
-        align-items: center;
-    }
-    .log-out .icon box-icon {
-        fill: rgb(245, 57, 57);
-        margin: 10px;
-    align-items: center;
-    }
-
-    .log-out .content {
-        margin-left: 20px;
-        font-size: 16px;
-        font-weight: 50px;
-    }       
+    .log-out svg {
+        transform: rotate(180deg);
+    }  
 
 }
     

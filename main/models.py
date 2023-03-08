@@ -46,7 +46,7 @@ class Attendance(models.Model):
     time = models.CharField(max_length=20)
     status = models.CharField(max_length=20)
     creatorid = models.CharField(max_length=20)
-    classes = ArrayField(models.CharField(max_length=20))
+    classes = ArrayField(models.CharField(max_length=20)) 
     attendance_data = models.JSONField(null=True)
 
     # attendance_data = {

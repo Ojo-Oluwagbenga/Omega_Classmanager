@@ -1,9 +1,9 @@
 import React, {Component} from "react";
-import Dayrow from "./Dayrow";
+import Userrow from "./Userrow";
 import Alert from "../Utils/alert";
 
 
-class Daytable extends Component {
+class Usertable extends Component {
     constructor(props) {
         super(props);
         this.state = {
@@ -16,19 +16,22 @@ class Daytable extends Component {
     }  
     
 
-    addRow = () => {        
+    addRow = () => {
         this.setState({
             dataset:[...this.state.dataset, {status:"1"}]
         })
     }
 
     proceed_delete = (data, otherdata) =>{
-        
+
+        console.log(otherdata);
+
         this.setState({showalert:false});
         if (data == 1){
             const ind = otherdata.value;
             let ini_set = this.state.dataset;
-            ini_set.splice(ind, 1);                                
+            ini_set.splice(ind, 1);
+                                
             this.setState({
                 dataset:[...ini_set]
             })
@@ -95,11 +98,11 @@ class Daytable extends Component {
                     {
                         this.state.dataset.map((row, i)=>{
                             row.daycl_code = typeof(row.daycl_code) == "undefined" ?  i : row.daycl_code
-                            return <Dayrow super={this} catcher={this.catcher} mindex={i} key={row.daycl_code} rowdata={row} />
+                            return <Userrow super={this} catcher={this.catcher} index={i} key={i} rowdata={row} />
                         })
                     }
                          
-                </div> 
+                </div>
                 {
                     this.state.showalert ? <Alert alert_data={this.state.alert_data}/> : ''
                 }
@@ -108,4 +111,4 @@ class Daytable extends Component {
     }
 }
 
-export default Daytable;
+export default Usertable;

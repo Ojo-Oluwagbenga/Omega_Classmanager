@@ -1,5 +1,69 @@
 {% extends "base.html" %}
-
+{% block extrahead%}
+<link rel="stylesheet" href="../static/attendance_data/css/style.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.9.4/Chart.js"></script>
+<script src="../static/general/script/html2canvas.js"></script>
+{% endblock %}
+   
 {% block content%}
+    <!-- <div id="classhold" class="providerSelectBox itembox">
+        <div class="nameBar">
+            Select Class
+        </div>
+        <div class="normalwidth filterer" style="padding:10px;display:flex;justify-content: space-evenly;border: 2px solid #d7d7d7; border-bottom: none;border-radius: 10px 10px 0px 0px;">
+            <input style=" padding:5px;width: 70%; outline:none; border:none;    background-color: whitesmoke;" placeholder="Enter any consecutive class letters here" type="text"> 
+            <span class="c-vert">Filter</span>
+        </div>
+        <div class="normalwidth ddhold" id="class" openstate=0 style="border-top: 2px dashed #d7d7d7; border-radius: 0 0 10px 10px">
 
+            <span class="name">Click to select class</span>
+            <span  style="display:none" class="svghold"><svg style="height:14px" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><path d="M201.4 137.4c12.5-12.5 32.8-12.5 45.3 0l160 160c12.5 12.5 12.5 32.8 0 45.3s-32.8 12.5-45.3 0L224 205.3 86.6 342.6c-12.5 12.5-32.8 12.5-45.3 0s-12.5-32.8 0-45.3l160-160z"/></svg><span>
+        </div>
+
+        
+        <div class="normalwidth dropdownwrap">
+            <div class="dropdown">
+                <div class="dditem" bio="mtn">MTN</div>
+            </div>
+        </div>        
+    </div>
+    <div class="normalwidth selecteditems-hold">
+        <span class=" selecteditems" style="display: none;">
+            <span>Apotheosis Mech</span>                        
+            <span>
+                <svg xmlns="http://www.w3.org/2000/svg" style="fill:#7c1010;  ; height:13px" viewBox="0 0 320 512"><path d="M310.6 150.6c12.5-12.5 12.5-32.8 0-45.3s-32.8-12.5-45.3 0L160 210.7 54.6 105.4c-12.5-12.5-32.8-12.5-45.3 0s-12.5 32.8 0 45.3L114.7 256 9.4 361.4c-12.5 12.5-12.5 32.8 0 45.3s32.8 12.5 45.3 0L160 301.3 265.4 406.6c12.5 12.5 32.8 12.5 45.3 0s12.5-32.8 0-45.3L205.3 256 310.6 150.6z"/></svg>
+            </span>
+        </span>
+        
+    </div> -->
+
+    <div class="datasuper">
+        <div class="reactport tablearea" for="AttendanceTablesuper" id="AttendanceTablesuper">
+
+        </div>  
+    </div>
+
+    <!-- <div class="table">
+        <div class="column">
+            <div class="row">Test</div>
+        </div>
+    </div> -->
+
+    <style>
+        .column{
+            display: flex;
+            flex-direction: column;
+        }
+        .row{
+            border: 2px solid black;
+        }
+        canvas{
+            display: none;
+        }
+    </style>
+    
+{% endblock %}
+
+{% block extrafoot%}
+    <!-- <script src="../static/createattendance/script/script.js"></script> -->
 {% endblock %}

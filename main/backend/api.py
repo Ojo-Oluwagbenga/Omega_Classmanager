@@ -10,14 +10,18 @@ import datetime
 from django.views import View
 import os
 import cv2
+from pyzbar.pyzbar import decode
+from pyzbar.pyzbar import ZBarSymbol
 import base64
 import numpy as np
 import qrcode
+
 
 from channels.layers import get_channel_layer
 from asgiref.sync import async_to_sync
 
 from PIL import Image
+from django.db.models import Q
 
 
 def test(response):
@@ -141,12 +145,16 @@ class UserAPI(View):
         if (response.method == "POST"):
 
             data =  json.loads(response.body.decode('utf-8')).get('payload')
+            
+            # Verify Data here Boss
 
             callresponse = { 
                 'passed': True,
-                'response':{},
+                'response':data,
                 'error':{}
             }
+            return (HttpResponse(json.dumps(callresponse)))
+            
             data['itemcode'] = 'dummy'
 
             sl = ModelSL(data=data, model=User, extraverify=self.extraverify)
@@ -175,6 +183,7 @@ class UserAPI(View):
             return HttpResponse(json.dumps(callresponse))
         else:
             return HttpResponse("<div style='position: fixed; height: 100vh; width: 100vw; text-align:center; display: flex; justify-content: center; flex-direction: column; font-weight:bold>Page Not accessible<div>")
+    
     
     def update(self, response):
         if (response.method == "POST"):
@@ -214,30 +223,32 @@ class UserAPI(View):
 
     def validate(self, response):
         if (response.method == "POST"):
-            data =  json.loads(json.loads(response.body.decode('utf-8')).get('payload'))
+            data =  json.loads(response.body.decode('utf-8')).get('payload')
 
             callresponse = {
                 'passed': True,
                 'response':{},
                 'error':{}
             }
-            email = validateEntry(callresponse, data.get('email'), "Email", 0, 100, "def")
+
+            unique = validateEntry(callresponse, data.get('uniqueid'), "Uniqueid", 0, 100, "def")
             password = validateEntry(callresponse, data.get('password'), "Password", 0, 100, "idef")
             
-            user = User.objects.filter(email=email, password=password)
+            user = User.objects.filter(Q(email=unique) | Q(matric=unique), password=password)
 
             if (callresponse['passed']):
                 if (len(user) == 0 ):
                     callresponse['passed'] = False
-                    callresponse['error']['general'] = ("User not found with the provided data")
+                    callresponse["Message"] = "User not found with the provided data"
                 else:
-                    callresponse['response']['message'] = ("User found")
-                    callresponse['response']['itemcode'] = user[0].itemcode
+                    callresponse['Message'] = "User found"
+                    callresponse['response'] = user[0].itemcode
                     
                     if (data.get('startSession') is not None):
                         if (data.get('startSession')):
                             init_user_session(response, user[0].itemcode)
                             callresponse['response']['message'] = ("User found and logged in")
+
             return HttpResponse(json.dumps(callresponse))
         else:
             return HttpResponse("<div style='position: fixed; height: 100vh; width: 100vw; text-align:center; display: flex; justify-content: center; flex-direction: column; font-weight:bold>Page Not accessible<div>")
@@ -390,28 +401,27 @@ class PaychannelAPI:
 class AttendanceAPI:
  
     extraverify={ 
-        
     }
 
     def create(self, response):
         if (response.method == "POST"):  
             data =  json.loads(response.body.decode('utf-8')).get('payload')
 
-            # return HttpResponse(json.dumps("callresponse"))
-            # Collect the time in the digits value if has_deadline
-            x = datetime.datetime.now()
-            # mdate = x.strftime("%H") + ":"+ x.strftime("%M") +" on "+ x.strftime("%A") +", "+ x.strftime("%d") +"-"+ x.strftime("%b") +"-"+ x.strftime("%Y")
-            mdate = x.strftime("%H") + ":"+ x.strftime("%M") +" on "+ x.strftime("%A") +", "+ x.strftime("%d") +"-"+ x.strftime("%b")
-            
             data['description'] = '-' if data['description'] == "" else data['description']
             data['attendance_code'] = "init" 
             data['status'] = "0" 
             data['attendance_data'] = {
                 "mark_index":0,
                 "marked_users_0":{
+                    "poll_base_data":{
+                        "time":data["time"],
+                        "time_activated":'',
+                        "time_closed":'',
+                        "time_queued":data["time"],
+                        "creator":data['creatorid'],
+                    },
                     data['creatorid']:{
                         "user_code":data['creatorid'], 
-                        "time":data["time"],
                         "parent_opener":'base', #The person that generated the code for the user
                         "opened_count":0, #The total number of people this has opened for
                     }
@@ -422,21 +432,7 @@ class AttendanceAPI:
 
             if (sl.is_valid()):
                 callresponse = sl.callresponse
-                
-                url = 'the_url_here'
-                NotificationAPI.send({
-                    "callback_url":url,
-                    "text":"Attendance poll created for " + data['course_code'] + " Coming up on " + data['timename'], 
-                    "time":data['time'],
-                    "category":"cla", 
-                    # "owners":[*data["classes"]],  
-                    "owners":["__all__"], 
-                    "otherdata":{}, #Any other data useful for that notification
-                })
 
-                # return HttpResponse(json.dumps(callresponse))
-                
-                
             else:
                 callresponse = sl.cError()
 
@@ -445,6 +441,17 @@ class AttendanceAPI:
                 sl.validated_data['attendance_code'] = numberEncode(ins_id, 5)
                 sl.save()
                 callresponse['response']['attendance_code'] = sl.validated_data['attendance_code']
+
+                url = 'the_url_here'
+                NotificationAPI.send({
+                    "callback_url":url,
+                    "text":"Attendance poll created for " + data['course_code'] + " Coming up on " + data['timename'], 
+                    "time":data['time'],
+                    "category":"cla",
+                    # "owners":[*data["classes"]],  
+                    "owners":["__all__"], 
+                    "otherdata":{}, #Any other data useful for that notification
+                })
                     
             return HttpResponse(json.dumps(callresponse))
 
@@ -508,20 +515,13 @@ class AttendanceAPI:
 
             attendance_code = data['attendance_code']
             user_code = data['user_code']
-            # mark_index = data['mark_index']
-            mark_index = 0
-
-            attd_dataname = 'marked_users_'+ str(mark_index)
+            
             query = {
-                'attendance_data__'+attd_dataname+'__'+user_code+'__user_code': user_code,
                 'attendance_code':attendance_code
             }
-
-            print('query', query)
-
+            
             attd = Attendance.objects.filter(**query)
-            print(attd)
-
+            
             if not attd:
                 callresponse = {
                     'passed': False,
@@ -531,12 +531,14 @@ class AttendanceAPI:
                 return HttpResponse(json.dumps(callresponse))            
 
             attd = attd[0]
+            
+            current_branch_index = attd.attendance_data['mark_index']
+            attd_dataname = 'marked_users_'+ str(current_branch_index)
 
-            print(attd)
             inicount = attd.attendance_data[attd_dataname][user_code]['opened_count'] 
             inicount = int(inicount) + 1           
             attd.attendance_data[attd_dataname][user_code]['opened_count'] = inicount
-            # attd.save()
+            attd.save()
 
 
 
@@ -566,50 +568,136 @@ class AttendanceAPI:
         else:
             return HttpResponse("<div style='position: fixed; height: 100vh; width: 100vw; text-align:center; display: flex; justify-content: center; flex-direction: column; font-weight:bold>Page Not accessible<div>")
 
+    def readQR(b64):
+        im1 = tocv2(b64)
+
+        im1 = cv2.cvtColor(im1, cv2.COLOR_BGR2GRAY) #Convert the image to grey
+        blur = cv2.GaussianBlur(im1, (5, 5), 0) #To reduce noise in the image and smooth it
+        ret, bw_im = cv2.threshold(blur, 0, 255, cv2.THRESH_BINARY+cv2.THRESH_OTSU) #Sharpen the edges of the qr. Milky is threshold to white, dull grey to black there about
+        barcodes = decode(bw_im, symbols=[ZBarSymbol.QRCODE])
+        
+        return False if not barcodes else barcodes[0].data.decode()
+
+    def decide_QRdata(data1, data2):
+        ret = {
+            "valid":False,
+        }
+        if not data1 or not data2:
+            ret["Message"] = "Unable to read QR from the Image. Please try again"
+            return ret
+
+        if data1 == data2:
+            ret["Message"] = "Invalid QR code sent!. Please try again"
+            return ret
+
+        data1set = data1.split("|")
+        data1sub = data1set[0].split("-")
+
+        data2set = data2.split("|")
+        data2sub = data2set[0].split("-")
+
+        if not ((data1set[0]) == (data2set[0])):
+            ret["Message"] = "Improper QR sent! Please try again"
+            return ret
+        
+        ret = {
+            'valid':True,
+            'attendance_code':data1sub[0],
+            'create_index_code':data1sub[1],
+            'opener_code':data1sub[2]
+        }
+
+        return ret
+ 
     def mark(self, response):
         if (response.method == "POST"):  
-            data =  json.loads(response.body.decode('utf-8')).get('payload')
-            b64img = data['img']
-            user_code = data['img']
-            attendance_code = data['img']
-            b64img = data['img']
-
-            # Convert the b64 image to np Image (Face Rec Uses Numpy)
-            b64img = b64img.replace('data:image/jpeg;base64,', '')
-
-            im_bytes = base64.b64decode(b64img)
-            im_arr = np.frombuffer(im_bytes, dtype=np.uint8)  # im_arr is one-dim Numpy array
-            img_cv2 = cv2.imdecode(im_arr, flags=cv2.IMREAD_COLOR)
+            data =  json.loads(response.body.decode('utf-8'))
+            callresponse = {
+                'passed': False,
+                'response':201,
+                'Message':"Broken pipe! It's us, not you! Please try again."
+            }
+       
+            user_code = data["user_code"]
+            imageset = data['payload']
+            qr1 = imageset[0]
+            qr2 = imageset[1]
+            face = imageset[2]
             
-            
-            ret = Recognizer.comparefaces(img_cv2, img_cv2)
+            data1 = self.readQR(qr1)
+            data2 = self.readQR(qr2)
 
+            outcome = self.decide_QRdata(data1, data2)
             
-            path = os.getcwd()+"/main/static/interpolimages/"+'loggedinuser'
-
-            # # create user edit folder if it doesnt exist
-            # if not os.path.isdir(path):
-            #     os.mkdir(path)
-
-            print (path)
+            if not outcome["valid"]:
+                callresponse['Message'] = outcome['Message']
+                return HttpResponse(json.dumps(callresponse))
             
-            return HttpResponse(json.dumps(ret))
+            print ("val", outcome)
+
+            # Find User Face with their code
+            # Stored as main/static/authimages/class_code/user_code
+            # impath = os.getcwd() + "main/static/authimages/class_code/user_code"
+
+            impath = "mayor.jpg"
+            userface = cv2.imread(impath)
+            
+            face = tocv2(face)            
+            ret = Recognizer.comparefaces(userface, face)
+
+            if not ret['ismatch']:
+                callresponse['Message'] = ret['Message']
+                return HttpResponse(json.dumps(callresponse))
+                
+            query = {
+                "attendance_code":outcome["attendance_code"]
+            }
+
+            attd = Attendance.objects.filter(**query)
+
+            if not attd:
+                callresponse = {
+                    'passed': False,
+                    'response':201,
+                    'Message':"Code does not exist"
+                }
+                return HttpResponse(json.dumps(callresponse))            
+
+            attd = attd[0]
+
+            print(attd)
+            attd.attendance_data[outcome["create_index_code"]][user_code] = {
+                "user_code":user_code, 
+                "time":'data["time"]',
+                "class_code":"class_code",
+                "parent_opener":outcome["opener_code"], 
+                "opened_count":0, 
+            }
+            
+            callresponse = {
+                'passed': True,
+                'response':200,
+                'create_index_code':outcome["create_index_code"],
+                'attendance_code':outcome["attendance_code"],
+                'Message':"Attendance Successfully Marked!",
+            }
+            # attd.save()
+
+            return HttpResponse(json.dumps(callresponse))
         else:
             return HttpResponse("<div style='position: fixed; height: 100vh; width: 100vw; text-align:center; display: flex; justify-content: center; flex-direction: column; font-weight:bold>Page Not accessible<div>")
     
     def fetchforhome(self, response):
         if (response.method == "POST"):  
-            user_code =  json.loads(response.body.decode('utf-8')).get('loggeduser', '')
-            # You should normally get the loggedin user from here sef
+            data = json.loads(response.body.decode('utf-8'))
 
-            class_code = "sss"
-
-            
+            class_code = data['class_code']
+            # You should normally get the loggedin user from here sef    
 
             query = {
-                'classes__contains': ["CRM605"]
+                'classes__contains': [class_code]
+                
             }
-
 
             attds = Attendance.objects.filter(**query)
             print (attds)          
@@ -644,6 +732,35 @@ class AttendanceAPI:
         else:
             return HttpResponse("<div style='position: fixed; height: 100vh; width: 100vw; text-align:center; display: flex; justify-content: center; flex-direction: column; font-weight:bold>Page Not accessible<div>")
 
+    def fetch_tabledata(self, response):
+        if (response.method == "POST"):  
+            data = json.loads(response.body.decode('utf-8'))
+
+            attendance_code = data['attendance_code']
+            # index_list = data['index_list'] 
+            # You should normally get the loggedin user from here sef 
+
+            query = {
+                'attendance_code': attendance_code,
+            }
+
+            fetchset = ["attendance_data", 'creatorid']
+            
+        
+            attds = Attendance.objects.filter(**query).values(*fetchset)
+            
+            retpack = [*attds]
+            
+            callresponse = {
+                'passed': True,
+                'response':200,
+                'datapack':retpack,
+            }
+            return  HttpResponse(json.dumps(callresponse)) 
+            
+        else:
+            return HttpResponse("<div style='position: fixed; height: 100vh; width: 100vw; text-align:center; display: flex; justify-content: center; flex-direction: column; font-weight:bold>Page Not accessible<div>")
+
     def genfetch(self, response):
         if (response.method == "POST"):  
             
@@ -672,23 +789,24 @@ class AttendanceAPI:
 
     def activateattendance(self, response):
         if (response.method == "POST"):  
-            attendance_code =  json.loads(response.body.decode('utf-8')).get('attendance_code', '')
-            user_code =  json.loads(response.body.decode('utf-8')).get('user_code', '')
+            data = json.loads(response.body.decode('utf-8'))
+            attendance_code =  data.get('attendance_code', '')
+            
+            # user_code must be owner/creator
+            user_code =  data.get('user_code', '')
+            
+            time = data['time']
             # You should normally get the loggedin user from here sef
 
             # if(loggeduser owns teh attendace)
             # continue
 
             user_code = 'loggeduser'
-            
-             
-            
+
             query = {
                 'attendance_code': attendance_code,
                 'creatorid': user_code
-            }
-
-             
+            }             
 
             attds = Attendance.objects.filter(**query)
 
@@ -701,8 +819,239 @@ class AttendanceAPI:
                 return HttpResponse(json.dumps(callresponse))      
 
             attd = attds[0]
+            # Verify that user_code is the creator Id to proceed
             attd.status = 1
+            current_branch_index = attd.attendance_data['mark_index']
+            
+            current_branch = 'marked_users_' + str(current_branch_index)
+            attd.attendance_data[current_branch]["poll_base_data"]['time_activated'] = time
+            attd.attendance_data[current_branch]["poll_base_data"]['activator'] = user_code
+
+            attd.save()
+
+            # SendNotifif here boss
+
+            callresponse = {
+                'passed': True,
+                'response':200,
+                'attendances':attendance_code
+            }
+            return  HttpResponse(json.dumps(callresponse)) 
+            
+        else:
+            return HttpResponse("<div style='position: fixed; height: 100vh; width: 100vw; text-align:center; display: flex; justify-content: center; flex-direction: column; font-weight:bold>Page Not accessible<div>")
+
+    def close_current(self, response):
+        if (response.method == "POST"):  
+
+            data = json.loads(response.body.decode('utf-8'))
+            attendance_code =  data.get('attendance_code', '')
+            user_code =  data.get('user_code', '')
+            time = data['time']
+            # You should normally get the loggedin user from here sef
+
+            # if(loggeduser owns teh attendace)
+            # continue
+
+            user_code = 'loggeduser'
+            
+            
+            query = {
+                'attendance_code': attendance_code,
+            }
+
+            attds = Attendance.objects.filter(**query)
+
+            if not attds:
+                callresponse = {
+                    'passed': False,
+                    'response':201,
+                    'Message':"Attendance does not exist",
+                }
+                return HttpResponse(json.dumps(callresponse))      
+
+            attd = attds[0]
+            attd.status = 2
+
+            current_branch_index = attd.attendance_data['mark_index']
+            
+            current_branch = 'marked_users_' + str(current_branch_index)
+            attd.attendance_data[current_branch]['poll_base_data']['time_closed'] = time
+            attd.attendance_data[current_branch]['poll_base_data']['closer'] = user_code
+
             attd.save()            
+
+
+            callresponse = {
+                'passed': True,
+                'response':200,
+                'attendances':attendance_code
+            }
+            return  HttpResponse(json.dumps(callresponse)) 
+            
+        else:
+            return HttpResponse("<div style='position: fixed; height: 100vh; width: 100vw; text-align:center; display: flex; justify-content: center; flex-direction: column; font-weight:bold>Page Not accessible<div>")
+
+    def queue_new(self, response):
+        if (response.method == "POST"):  
+            data = json.loads(response.body.decode('utf-8'))
+
+            attendance_code = data['attendance_code']
+            user_code = data['user_code']
+            new_time = data['time']
+            
+            # You should normally get the loggedin user from here sef
+
+            # if(loggeduser owns teh attendace)
+            # continue
+
+            user_code = 'loggeduser'           
+             
+            
+            query = {
+                'attendance_code': attendance_code,
+                'creatorid': user_code
+            }
+
+            attds = Attendance.objects.filter(**query)
+
+            if not attds:
+                callresponse = {
+                    'passed': False,
+                    'response':201,
+                    'Message':"Attendance does not exist",
+                }
+                return HttpResponse(json.dumps(callresponse))      
+
+            
+            attd = attds[0]
+            attd.status = 0
+            attd.time = new_time
+
+            current_branch_index = attd.attendance_data['mark_index']
+            current_branch = 'marked_users_' + str(current_branch_index + 1)
+            #Verify user_code is the owner of the attendance
+            attd.attendance_data['mark_index'] = current_branch_index + 1
+            attd.attendance_data[current_branch] = {
+                "poll_base_data":{
+                    "time":data["time"],
+                    "time_activated":'',
+                    "time_closed":'',
+                    "time_queued":new_time,
+                    "creator":user_code
+                },
+                user_code:{
+                    "user_code":user_code, 
+                    "parent_opener":'base', #The person that generated the code for the user
+                    "opened_count":0, #The total number of people this has opened for
+                }
+            }
+
+            
+            attd.save() 
+
+            # url = 'the_url_here'
+            # NotificationAPI.send({
+            #     "callback_url":url,
+            #     "text":"Attendance poll queued for " + attd.course_code + " Coming up on " + data["time"], 
+            #     "time":data['time'],
+            #     "category":"cla", 
+            #     # "owners":[*data["classes"]],  
+            #     "owners":["__all__"], 
+            #     "otherdata":{}, #Any other data useful for that notification
+            # })           
+
+
+            callresponse = {
+                'passed': True,
+                'response':200,
+                'attendances':attendance_code,
+                'current_branch':current_branch
+            }
+            return  HttpResponse(json.dumps(callresponse)) 
+            
+        else:
+            return HttpResponse("<div style='position: fixed; height: 100vh; width: 100vw; text-align:center; display: flex; justify-content: center; flex-direction: column; font-weight:bold>Page Not accessible<div>")
+
+    def unqueue_current(self, response):
+        if (response.method == "POST"):  
+            data = json.loads(response.body.decode('utf-8'))
+
+            attendance_code = data['attendance_code']
+            user_code = data['user_code']
+            
+            # You should normally get the loggedin user from here sef
+
+            # if(loggeduser owns teh attendace)
+            # continue
+
+            user_code = 'loggeduser'
+             
+            
+            query = {
+                'attendance_code': attendance_code,
+                'creatorid': user_code
+            }
+
+            attds = Attendance.objects.filter(**query)
+
+            if not attds:
+                callresponse = {
+                    'passed': False,
+                    'response':201,
+                    'Message':"Attendance does not exist",
+                }
+                return HttpResponse(json.dumps(callresponse))      
+
+            
+            attd = attds[0]
+            attd.status = 2
+            current_branch_index = attd.attendance_data['mark_index']
+            attd.attendance_data['mark_index'] = current_branch_index - 1
+            
+            current_branch = 'marked_users_' + str(current_branch_index)
+
+            #Verify user_code is the owner of the attendance
+
+            del attd.attendance_data[current_branch]
+            
+            attd.save()         
+
+            callresponse = {
+                'passed': True,
+                'response':200,
+                'attendances':attendance_code,
+                'current_branch':current_branch
+            }
+            return  HttpResponse(json.dumps(callresponse)) 
+            
+        else:
+            return HttpResponse("<div style='position: fixed; height: 100vh; width: 100vw; text-align:center; display: flex; justify-content: center; flex-direction: column; font-weight:bold>Page Not accessible<div>")
+
+    def delete_attendance(self, response):
+        if (response.method == "POST"):  
+            attendance_code =  json.loads(response.body.decode('utf-8')).get('attendance_code', '')
+            user_code =  json.loads(response.body.decode('utf-8')).get('user_code', '')
+
+            query = {
+                'attendance_code': attendance_code,
+                # 'creatorid': user_code
+            }           
+
+            attds = Attendance.objects.filter(**query)
+
+            if not attds:
+                callresponse = {
+                    'passed': False,
+                    'response':201,
+                    'Message':"Attendance does not exist",
+                }
+                return HttpResponse(json.dumps(callresponse))      
+
+            attd = attds[0]
+
+            print ("Alaye !")
+            # attd.delete()       
 
 
             callresponse = {
@@ -718,8 +1067,7 @@ class AttendanceAPI:
 class ClassAPI:
     extraverify={
 
-    }
-    
+    }    
 
     def create(self, response):
         if (response.method == "POST"):
@@ -924,7 +1272,6 @@ class ClassAPI:
             fetchset = ["timetable__tableset__"+day, "timetable__tabledata__"+dc_code]
             qset = Class.objects.defer("id").filter(class_code=class_code).values(*fetchset)
 
-            print(qset)
 
             if (qset.count() == 0):
                 callresponse = {
@@ -1193,7 +1540,7 @@ class ClassAPI:
             qset = qsets[0]
             
 
-            majstring = "delete qset.timetable['tabledata'][dayclass_code]" + self.buildstring(parent_address) + "['"+comment_code+"']"
+            majstring = "del qset.timetable['tabledata'][dayclass_code]" + self.buildstring(parent_address) + "['"+comment_code+"']"
             exec(majstring)
 
             qset.save()
@@ -1276,6 +1623,12 @@ class NotificationAPI:
                 # }
         #
 
+        callresponse = {
+            'passed': True,
+            'response':{},
+            'error':{}
+        }
+
         channel_layer = get_channel_layer()
         for listener in dataset['owners']:
             async_to_sync(channel_layer.group_send)(
@@ -1285,7 +1638,7 @@ class NotificationAPI:
                     "message": dataset,
                 },
             )
-        return
+        return callresponse
 
 
         dataset['itemcode'] = "dummy"
@@ -1312,50 +1665,29 @@ class NotificationAPI:
                     "message": dataset,
                 },
             )
+        return callresponse
 
     def create(self, response):
         if (response.method == "POST"):
             data =  json.loads(response.body.decode('utf-8')).get('payload')            
             
-            # channel_layer = get_channel_layer()
-
-            # async_to_sync(channel_layer.group_send)(
-            #     "grouptest",
-            #     {
-            #         "type": "chatmessages",
-            #         "message": "Freak",
-            #     },
-            # )
-
             return HttpResponse("Family")
-            data['class_code'] = "init" 
-            data['timetable'] = {
-                'tableset':{
-                    "Monday":[],
-                    "Tuesday":[],
-                    "Wednesday":[],
-                    "Thursday":[],
-                    "Friday":[],
-                    "Saturday":[],
-                    "Sunday":[],
-                },
-                "tabledata":{}
+            dataset = {
+                "callback_url":"curl",
+                "text":data['text'],
+                "time":"time",
+                "category":data["category"], 
+                # "upd" for Updates(pay created, pay ending), 
+                # "cla" for Class (concerning class creations, class updates, attendance creates)
+                # "rem" for Reminder(class coming up, pay ending, pay not yet attendeds)
+                # "soc" for socials (replies to comments, comments add);
+                # 'exa' for exams (exams and test updates)
+                # "gen" for general (paycomplete from omega, )
+                "owners":data['owners'], #As defined by owner_set above
+                "otherdata":{} #Any other data useful for that notification
             }
-            sl = ModelSL(data=data, model=Class, extraverify=self.extraverify)
-
-            if (sl.is_valid()):
-                callresponse = sl.callresponse
-                
-            else:
-                callresponse = sl.cError()
-
-            if (callresponse['passed']):
-                ins_id = sl.save().__dict__['id']
-                sl.validated_data['class_code'] = numberEncode(ins_id, 5)
-                sl.save()
-                callresponse['response']['class_code'] = sl.validated_data['class_code']
-                    
-            return HttpResponse(json.dumps(callresponse))
+            
+            return HttpResponse(json.dumps(self.send(dataset)))
 
         else:
             return HttpResponse("<div style='position: fixed; height: 100vh; width: 100vw; text-align:center; display: flex; justify-content: center; flex-direction: column; font-weight:bold>Page Not accessible<div>")

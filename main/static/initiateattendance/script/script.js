@@ -28,7 +28,7 @@ $(document).ready(function(){
                 if (response.data.response == 200){
                     console.log("Starting");
                     const imageset = response.data.image_set;
-                    swithImage(imageset, 1200, function(img64){
+                    switchImage(imageset, 1200, function(img64){
                         $("#qrcodeimage").attr("src", img64);
                     })
                 }
@@ -42,7 +42,7 @@ $(document).ready(function(){
     }); 
 
 
-    function swithImage(imageset, t_delta, callback, _data){
+    function switchImage(imageset, t_delta, callback, _data){
         if (typeof(_data) == 'undefined'){
             _data = {
                 count:0
@@ -54,7 +54,7 @@ $(document).ready(function(){
             callback(imageset[ct])                       
             if (imageset.length > ct){
                 _data['count'] = ct+1; 
-                swithImage(imageset, t_delta, callback, _data);
+                switchImage(imageset, t_delta, callback, _data);
             }
         }, t_delta);
     }

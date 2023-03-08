@@ -103,11 +103,11 @@ $(document).ready(function(){
 
                             
 
-                            $(`.editbox[tab=${tab}] .row[given_code=${row}]`).css({
+                            $(`.editbox[tab=${tab}] .row[given_index=${row}]`).css({
                                 "border-left":"2px solid red"
                             })
 
-                            $(`.editbox[tab=${tab}] .row[given_code=${row}] .editbox[col=${col}] input`).css({
+                            $(`.editbox[tab=${tab}] .row[given_index=${row}] .editbox[col=${col}] input`).css({
                                 "border-bottom":"2px solid #ff00005e"
                             }).click(function(){
                                 $(this).css({

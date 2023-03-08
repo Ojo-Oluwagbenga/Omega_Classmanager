@@ -45,6 +45,55 @@ $(document).ready(function(){
         }, 
     ]
 
+    let isAnnoucement = true;
+    if (isAnnoucement){
+        // # "upd" for Updates(pay created, pay ending), 
+            //             # "cla" for Class (concerning class creations, class updates, attendance creates)
+            //             # "rem" for Reminder(class coming up, pay ending, pay not yet attendeds)
+            //             # "soc" for socials (replies to comments, comments add);
+            //             # 'exa' for exams (exams and test updates)
+        //             # "gen" for general (paycomplete from omega, )
+        courses = [
+            {
+                title:"General",        
+                course_code:"gen",          
+            },
+            {
+                title:"Examinations",        
+                course_code:"exa",          
+            },
+            {
+                title:"Reminder",        
+                course_code:"rem",          
+            },
+            {
+                title:"Lecture Update",        
+                course_code:"cla",          
+            }, 
+        ]
+        classes = [
+            {
+                name:"Apyherseos Criminology",        
+                class_code:"CRM605",          
+            },
+            {
+                name:"Helpme Math",        
+                class_code:"MTH101",          
+            },
+            {
+                name:"Medicine And suge",        
+                class_code:"CHM201",          
+            },
+            {
+                name:"Advanced Criminology",        
+                class_code:"CRM305",          
+            },
+            {
+                name:"Introductory Criminology",        
+                class_code:"PRM605",          
+            }, 
+        ]
+    }
     let loadedcourses = {};
 
     courses.map(function(obj){
@@ -270,4 +319,74 @@ $(document).ready(function(){
        
         //submit
     });
+
+    //Extended In Create NOTIFICATION
+    $(".createnotification .hold").click(function(){
+        
+        let payload= {
+            description:$(".description textarea").val(),
+            creatorid:"loggeduser",
+            category:selected_course,//Would be notification category
+        }
+        console.log(payload.description);
+
+        let error = 0;
+        let classes = Object.keys(selected_classes);
+
+        if (selected_course == ""){//category in this case
+            popAlert("Kindly select the Category Above");
+            error = 1;
+            return
+        }  
+        if (payload.description == ""){//category in this case
+            popAlert("Kindly enter the text to send");
+            error = 1;
+            return
+        }        
+
+        let isInstructor = true;
+        if (classes.length == 0 && isInstructor){ // Applicable for only instructors
+            popAlert("Kindly select at least a class that receives this announcement.");
+            error = 1;
+            return
+        }
+        payload["classes"] = classes;
+
+        
+
+        console.log(payload);
+
+        if (error == 0){                   
+            popAlert("Sending Notifications...");
+            return
+            axios({
+                method: 'POST',
+                url: './api/notification/create',
+                headers: {
+                    'Cache-Control': 'no-cache',
+                    'Pragma': 'no-cache',
+                    "X-CSRFToken" : $("input[name='csrfmiddlewaretoken']").val()
+                },
+                data: {
+                    payload: payload
+                }
+            }).then(response => {
+                console.log(response)
+                response = response.data;
+
+                if (response.passed){
+                    popAlert("Announcement created! Redirecting...");
+                    //Should redirect to the page of activation
+                }else{
+                    popAlert('Unable to create announcement. Please check info and try again')
+                }
+            })
+            .catch(error => console.error(error))
+        
+        }
+
+       
+        //submit
+    });
+
 })

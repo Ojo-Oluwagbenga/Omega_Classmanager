@@ -5,6 +5,22 @@ export default class Helper {
         console.log("Testetd");
     }
 
+    sendRequests(url, data, callback, ){
+        axios({
+            method: 'POST',
+            url: window.location.origin +  url,
+            headers: {
+                'Cache-Control': 'no-cache',
+                'Pragma': 'no-cache',
+                "X-CSRFToken" : $("input[name='csrfmiddlewaretoken']").val()
+            },
+            data: data
+        }).then(response => {
+            callback(response.data)
+        })
+        .catch(error => console.error(error))
+    }
+
     getLoggedUser(){
         // axios({ 
         //     method: 'POST',
@@ -40,6 +56,7 @@ export default class Helper {
             "name":"Ojo John",
         }
     }
+
 
     initiateListeners(){
         EMPIRICAL['listeners'] = {}

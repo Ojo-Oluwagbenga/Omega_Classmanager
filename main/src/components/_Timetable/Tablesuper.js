@@ -30,12 +30,10 @@ class Tablesuper extends Component {
             }
         }).then(response => {
             response = response.data;
-            console.log(response);
             if (response.passed){
                 if (this.hasvalues(response.queryset)){
                     let unarranged = response.queryset;
                     let data = this.normalizeArrangement(unarranged);
-                    console.log('arranged',data);
                     this.setState({table_data: {...data}})
                 }else{
                     console.log("-----");

@@ -6,10 +6,48 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>  
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <!-- <script src="../static/general/script/html2canvas.js"></script> -->
     <title>Document</title>
 </head>
 <body>
-    Hey
+    New test
+    
+    <div id="capture">
+        <div class="init1 init" style="background-color:red">Create Class</div>
+        <div class="init2 init" style="background-color:yellow">Addcomment</div>
+        <div class="init3 init" style="background-color:green">Addreply</div>
+        <div class="init4 init" style="background-color:blue">Fetch comments</div>
+        <div class="init5 init" style="background-color:brown">Fetch Post 1</div>
+        <div class="init6 init" style="background-color:red">Delete Post 1</div>
+        
+        <style>
+            .init{
+                max-width: 100px;
+                border-radius:10px;
+                margin: 10px;
+                padding: 10px;
+                cursor:pointer;
+            }
+        </style>
+
+    </div>
+
+
+    <script>
+        html2canvas(document.querySelector("#capture"), {
+            width: 133,
+            height: 324
+            }).then(canvas => {
+                var a = document.createElement('a');
+                a.href = canvas.toDataURL("image/png");
+                a.download = 'myfile.png';
+                // a.click();
+                // document.body.appendChild(canvas)
+        });
+    </script>
+
+</body>
+    <!-- Hey
     <input type='file' id="up_file" name='file'>
     <div class="init1 init" style="background-color:red">Create Class</div>
     <div class="init2 init" style="background-color:yellow">Addcomment</div>
@@ -258,7 +296,9 @@
             })
         
         </script>
-    </div>
+    </div> -->
 
-</body>
+    
+
+
 </html>

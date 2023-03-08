@@ -16,6 +16,7 @@ import main.backend.WS_channel.routing
 
 os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'classmanager.settings')
 
+
 # application = get_asgi_application()
 application = ProtocolTypeRouter({
     'http': get_asgi_application(),

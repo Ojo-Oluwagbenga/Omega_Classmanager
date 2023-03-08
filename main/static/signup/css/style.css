@@ -214,10 +214,10 @@ button {
 .usertype{
     cursor: pointer;
     box-sizing: border-box;
-    padding: 10px;
+    padding: 30px 15px;
     transition: all 0.2s ease;
     position: relative;
-    border-radius: 5px;
+    border-radius: 10px;
     box-shadow: 0px 0px 0px black;
     background-color: white;
     margin: 15px 0px;

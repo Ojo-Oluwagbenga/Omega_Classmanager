@@ -69,6 +69,9 @@ def camtest(response):
 def signup(response):
     return render(response, "signup.html", {}) 
 
+def login(response):
+    return render(response, "login.html", {}) 
+
 def dashboard(response):
     return render(response, "dashboard.html", {}) 
 
@@ -133,11 +136,13 @@ def classdata(response, classcode_day_dclcode):
 def createchannel(response):
     return render(response, "createchannel.html", {}) 
 
-def attendance_data(response):
+def changeface(response):
+    return render(response, "changeface.html", {}) 
+
+
+def attendance_data(response, attendance_code):
     return render(response, "attendance_data.html", {}) 
     
-
-
 def takeattendance(response):
     return render(response, "takeattendance.html", {}) 
 
@@ -150,6 +155,9 @@ def account(response):
 
 def notifications(response):
     return render(response, "notifications.html", {}) 
+
+def createnotification(response):
+    return render(response, "createnotification.html", {}) 
 
 def edittimetable(response):
     return render(response, "edittimetable.html", {}) 

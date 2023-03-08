@@ -34,7 +34,6 @@ class PageSingleSuper extends Component {
         this.setUpNotiSocket();        
     }  
 
-    chat_wsConnect = {}
 
     setUpChatSocket(){
         let needed = this.state.needed;
@@ -44,16 +43,19 @@ class PageSingleSuper extends Component {
         let dayclass_code = `${class_code}_${dc_code}`
 
         let url = `ws://${window.location.host}/ws/chat/subscribe/${dayclass_code}`;
-        this.chat_wsConnect = new WebSocket(url);
+
+        let context = this;
+
+        this.chat_wsConnect = new WebSocket(url);         
 
         this.chat_wsConnect.onopen = function(){
-            popAlert("Connected");
+            popAlert("Connected"); 
         }
         this.chat_wsConnect.onclose = function (event) {
             popAlert("Reconnecting...");            
+            context.setUpChatSocket();
         };
 
-        let context = this;
         let helper = new Helper();
         this.chat_wsConnect.onmessage = function(e){
 
@@ -70,17 +72,23 @@ class PageSingleSuper extends Component {
         let user_code = "user_code"
 
         let url = `ws://${window.location.host}/ws/notification/subscribe/${class_code}/${user_code}`;
-        this.chat_wsConnect = new WebSocket(url);
 
-        this.chat_wsConnect.onopen = function(){
+        let context = this;
+
+        this.noti_wsConnect = new WebSocket(url);
+
+        this.noti_wsConnect.onopen = function(){
             console.log("Agba connected");
             // popAlert("Connected");
         }
-        this.chat_wsConnect.onclose = function (event) {
-            popAlert("Connection Lost");   
+        
+        this.noti_wsConnect.onclose = function (event) {
+            popAlert("Reconnecting...");
+            context.setUpNotiSocket();            
         };
         
-        this.chat_wsConnect.onmessage = function(e){
+        
+        this.noti_wsConnect.onmessage = function(e){
 
             let response = (JSON.parse(e.data))
             

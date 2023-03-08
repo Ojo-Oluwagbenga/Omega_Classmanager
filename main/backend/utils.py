@@ -1,4 +1,8 @@
 from bs4 import BeautifulSoup
+import base64
+import cv2
+import numpy as np
+
 
 def inAllowed(text, allowed):
     allowed = str(allowed)
@@ -148,3 +152,12 @@ def sanitize_html(value, mtype="none"):
     if ret == "":
         ret = "..."
     return ret
+
+def tocv2(b64):
+    b64 = b64.replace('data:image/jpeg;base64,', '')
+
+    im_bytes = base64.b64decode(b64)
+    im_arr = np.frombuffer(im_bytes, dtype=np.uint8)  # im_arr is one-dim Numpy array
+    img_cv2 = cv2.imdecode(im_arr, flags=cv2.IMREAD_COLOR)
+    return img_cv2
+            
