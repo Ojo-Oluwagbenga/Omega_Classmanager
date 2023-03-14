@@ -113,6 +113,9 @@ button {
     margin-bottom: 1rem;
 }
 
+.page-login-super{
+    margin-bottom: 30px;
+}
 .page-line::before,
 .page-line::after {
     content: "";
@@ -140,12 +143,13 @@ button {
 }
 
 .page-login {
-    text-align: center;
+    text-align: right;
+    padding: 10px;
 }
 
-.page-login-dark {
+.page-login-dark { 
     font-weight: 700;
-    color: #000000;
+    color: #0600bd;
 }
 
 /* Extra */
@@ -202,14 +206,8 @@ button {
     position: relative;
     transition: background-color 0.2s ease-in;
 }
-.round .rectBox {
-    width: 10px;
-    height: 5px;
-    padding-bottom: 2px;
-    transform: rotateZ(-45deg) translate(1px,0px);
-    border-bottom: 2px solid white;
-    border-left: 2px solid white;
-    margin: auto;
+.round svg {
+    fill: white;
 }
 .usertype{
     cursor: pointer;

@@ -67,11 +67,25 @@
                             </div>
                     </div>          
                     <div class="intro">
-                        <p>Hello, <b>Oluwatosin</b></p>
+                        <p>Hello, <b class="__to_load" item="name">--</b></p>
                         <p class="low">Have a nice day</p>
                     </div>
                 </header>
 
+                <section class="unsigned">
+                    <div class="head">Just a few steps away</div>
+                    <div class="process-pack">
+                        <div class="process-hold">
+                            <div class="head">Find your class</div>
+                            <div class="extra-text">Hey Ojo! Seems haven't joined a class yet. Would you like to join one now?</div>
+                            <div class="process-proceed" id="joinclass">
+                                Yes, Proceed.
+                            </div>
+                        </div>
+                        
+                    </div>
+                </section>
+                
                 <section id="Attendance_Super" for="Attendance_Super" class="reactport">
                     
                 </section>
@@ -81,7 +95,7 @@
                 </section> 
 
 
-                <section class="pending-due">
+                <section class="pending-due" style="display:none">
                     <div class="pending-head">
                         <div class="pending">
                             <b>Assignment</b>
@@ -119,6 +133,8 @@
             </section>                                          
           
         </section>
+
+        
         
         <section class="nav-tab c-vert">
             <div class="super-hold">
@@ -127,8 +143,8 @@
                 </div>
                 <div class="userpack c-vert">
                     <img src="../static/dashboard/img/user.png" alt="">
-                    <span class="name">Ojo John</span>
-                    <span class="mail">ojojohn2907@gmail.com</span>
+                    <span class="name __to_load" item="name">Ojo John</span>
+                    <span class="mail __to_load" item="email">ojojohn2907@gmail.com</span>
                 </div>
 
                 <div class="nav-itempack">
@@ -304,6 +320,7 @@
                 }
             </script>
         </section>
+
         <footer class="foot">
             <div class="icon-flex">
                 <div class="c-vert s-hold"><svg xmlns="http://www.w3.org/2000/svg" style="height:16px;" viewBox="0 0 576 512"><path d="M575.8 255.5c0 18-15 32.1-32 32.1h-32l.7 160.2c0 2.7-.2 5.4-.5 8.1V472c0 22.1-17.9 40-40 40H456c-1.1 0-2.2 0-3.3-.1c-1.4 .1-2.8 .1-4.2 .1H416 392c-22.1 0-40-17.9-40-40V448 384c0-17.7-14.3-32-32-32H256c-17.7 0-32 14.3-32 32v64 24c0 22.1-17.9 40-40 40H160 128.1c-1.5 0-3-.1-4.5-.2c-1.2 .1-2.4 .2-3.6 .2H104c-22.1 0-40-17.9-40-40V360c0-.9 0-1.9 .1-2.8V287.6H32c-18 0-32-14-32-32.1c0-9 3-17 10-24L266.4 8c7-7 15-8 22-8s15 2 21 7L564.8 231.5c8 7 12 15 11 24z"/></svg></div>

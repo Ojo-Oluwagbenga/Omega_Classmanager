@@ -10,7 +10,9 @@ import TodayclassSuper from './components/_Timetable/TodayclassSuper';
 import PageSingleSuper from './components/_Timetable/PageSingleSuper';
 import NotificationSuper from './components/_Notifications/NotificationSuper';
 import AttendanceTablesuper from './components/_Attendancetable/AttendanceTablesuper';
-
+import All_AttendanceSuper from './components/_All_Attendances/All_AttendanceSuper';
+import All_PaymentSuper from './components/_All_Payments/All_PaymentSuper'; 
+import Paychannel_data from './components/_Paychannel_data/Paychannel_data';
 //Note all your react control element must carry a class reactport 
 //And attr 'for' based on what we are loading. Must definitely bear a unique id too
  
@@ -25,6 +27,9 @@ const Mycomponents = {
     PageSingleSuper:PageSingleSuper,
     NotificationSuper:NotificationSuper,
     AttendanceTablesuper:AttendanceTablesuper,
+    All_AttendanceSuper:All_AttendanceSuper,
+    All_PaymentSuper, All_PaymentSuper,
+    Paychannel_data:Paychannel_data,
 }
 
 // console.log(MyComponents);

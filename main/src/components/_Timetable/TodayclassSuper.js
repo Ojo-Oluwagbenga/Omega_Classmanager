@@ -48,6 +48,7 @@ class TodayclassSuper extends Component {
 
   render() {
     return (
+        this.state.dayclass.length > 0?
         <section className="today">
             <div className="headline"></div>
             <div className="pending-head">
@@ -65,6 +66,7 @@ class TodayclassSuper extends Component {
                 }
             </div>
         </section>
+        :""
     );
   }
 }

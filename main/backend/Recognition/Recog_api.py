@@ -40,6 +40,7 @@ import datetime
 
 class Recognizer:
     def comparefaces(face1, face2):
+
         #Faces in BGR cv2
         try:
             
@@ -69,3 +70,35 @@ class Recognizer:
             
         except Exception as e:        
             print(str(e))
+    
+    def detectFace(face):
+
+        #Faces in BGR cv2
+        try:            
+            conv1 = cv2.cvtColor(face, cv2.COLOR_BGR2RGB)
+            loc1 = face_recognition.face_locations(face)
+            print("loci----", loc1)
+            if len(loc1) == 0:
+                return {
+                    "ismatch":False,
+                    "response":201,
+                    "Message":"No face found! Please stay still when capturing."
+                }
+            
+            if len(loc1) > 1:
+                return {
+                    "ismatch":False,
+                    "response":202,
+                    "Message":"Multiple face found! Please just a face is needed"
+                }
+                
+
+            return {
+                "response":200,
+                "face_found":True,
+                "Message":"Face match. Please proceed"
+            }
+            
+        except Exception as e:        
+            print(str(e))
+            

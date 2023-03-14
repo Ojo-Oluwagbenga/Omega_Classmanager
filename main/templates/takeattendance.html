@@ -66,11 +66,11 @@
             Scan the Post-Auth QRCODE from an authorized end then click the button below to start a digital handshake
         </div>
         <div class="face-filmer-wrap">
-            <video class="face-filmer" id="face-filmer" playsinline autoplay></video>
-            <div class="overlay c-vert">
-                <div class="circle"></div>
-
+            <div class="video-hold">
+                <video class="face-filmer" id="face-filmer" playsinline autoplay></video>
+                <div class="circle"></div> 
             </div>
+            
         </div>
         <div class="controller">
             <button click="0" id="snap">Start</button>
@@ -79,6 +79,9 @@
         <img style="display: none;" class="testimg " src="" alt="">
 
         <style>
+            body{
+                background-color: whitesmoke;
+            }
             .headtexthold{
                 padding: 10px;
                 margin: 20px 10%;
@@ -96,18 +99,21 @@
                 margin: 0px auto;
                 border: 2px dashed grey;
             }
-            .overlay{
+            .face-filmer-wrap .video-hold{
+                width: max-content;
+                height: max-content;
+                position: relative;
+                margin: 0px auto;
+            }
+            
+            .circle{
                 position: absolute;
                 top: -4px;
-                height: calc(100% + 8px);
-                width: 100%;
-                overflow: hidden;
-            }
-            .circle{
+                left: -4px;
                 margin: 0px auto;
-                height: 100%;    
+                height: calc(100% + 8px);
                 display: flex;
-                width: calc(60vw + 8px);
+                width: calc(100% + 8px);
                 animation-iteration-count: infinite;
                 background-color: rgba(255, 0, 0, 0);
                 animation-timing-function: ease-out;

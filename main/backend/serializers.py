@@ -18,11 +18,20 @@ class ModelSL(serializers.ModelSerializer):
         'response':{},
         'error':{}
     }
+    
+       
     def __init__(self, **kwargs):
+        self.callresponse = {
+            'passed': True,
+            'response':{},
+            'error':{}
+        }
+
         if (kwargs.get('selection') is not None):
             self.Meta.fields = kwargs['selection']
         self.Meta.model = kwargs['model']
         self.extraverify = kwargs['extraverify']
+        
         super().__init__(data=kwargs.get("data"))
         
     def validate(self, data):
@@ -44,6 +53,7 @@ class ModelSL(serializers.ModelSerializer):
             self.callresponse['error']['itemcode'] = "Item Code does not exist"
 
         return self.callresponse
+
     def cError(self):
         errs = json.loads(JSONRenderer().render(self.errors))
         self.callresponse['passed'] = False
@@ -55,5 +65,3 @@ class ModelSL(serializers.ModelSerializer):
                 self.callresponse['error'][key] = value[0]
                 
         return self.callresponse
-
-

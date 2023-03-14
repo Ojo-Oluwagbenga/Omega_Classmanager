@@ -67,6 +67,7 @@ class Attendance_Super extends Component {
     render() {
         return (
 
+            this.state.attendances.length > 0?
             <section className="pending-due"> 
                 <div className="pending-head">
                     <div className="pending">
@@ -99,6 +100,7 @@ class Attendance_Super extends Component {
 
                 </div>
             </section>
+            : ""
         )
         
         

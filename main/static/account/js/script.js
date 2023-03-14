@@ -1,4 +1,38 @@
 $(document).ready(function(){
+    let user_data = JSON.parse(sessionStorage.getItem("user_data"));
+    let user_class_data = user_data.class_data;
+    console.log(user_class_data);
+    function pageSetup(){
+        if (user_data.has_face == 0){
+            $(".change-face-auth .t-hold").text("Register Face Auth")
+        }
+        if (user_data.accept_status != 1){
+            $(".unsigned").css("display", "block");
+            $(".class_data.others").css("display", "none");
+        }
+        $(".__to_load").each(function(){
+            const toload  = $(this).attr("item");   
+            if ($(this).attr("type") == 'text'){
+                $(this).val(user_data[toload]);
+                return;
+            }         
+            if (toload == 'role'){
+                $(this).text(user_data['user_type'] == 'rep' ? "Class Lead" : 'Memeber');
+                return;
+            }
+            $(this).text(user_data[toload])
+        })
+        $(".__class_to_load").each(function(){
+            const toload  = $(this).attr("item");   
+            if ($(this).attr("type") == 'text'){
+                $(this).val(user_data[toload]);
+                return;
+            }      
+            $(this).text(user_class_data[toload])
+        })
+    }
+    pageSetup();
+
     $(".leave").click(function(){
         // popAlert("Leave the fucking classs");
         let data = {
@@ -53,8 +87,59 @@ $(document).ready(function(){
     })
     function saveEditProfile(){
         popAlert("Checking password...");
+        let upds = {};
+        $("#profile-Update .entries input").each(function(){
+            if ($(this).val() != ""){
+                upds[$(this).attr("id")] = $(this).val();
+            }
+        });
+        if (!upds['old_password']){
+            popAlert("Enter old password to proceed with updates");
+            return;
+        }
+        if (!upds['old_email']){
+            popAlert("Enter the old email address to proceed.");
+            return;
+        }
+
+        console.log(upds);
+        axios({
+            method: 'POST',
+            url: '../api/user/update',
+            headers: {
+                'Cache-Control': 'no-cache',
+                'Pragma': 'no-cache',
+                "X-CSRFToken" : $("input[name='csrfmiddlewaretoken']").val()
+            },
+            data: {
+                validation_set:{
+                    password: upds.old_password,
+                    uniqueid: upds.old_email,
+                },
+                updates:{
+                    ...upds
+                },
+                fetchpair:{
+                    email:upds.old_email
+                },
+            }
+        }).then(response => {
+            response = response.data;
+            console.log(response);
+
+            if (response.passed){
+                popAlert("Details updated successfully!")
+                location.reload();
+            }else{
+                popAlert(response.Message)
+            }
+        }).catch(error => console.error(error))  
+        
     }
 
+    $("#joinclass").click(function(){
+        window.location.href = './joinclass';
+    })
     $("#editprofile").click(function(){
         $(".profileEdit-super").css({
             'display':"block",
@@ -76,7 +161,7 @@ $(document).ready(function(){
         })
     })
     function logout(){
-        popAlert("Logging out...");
+        popAlert("Logging out..."); 
     }
     $(".change-face-auth").click(function(){        
         popAlert("Redirecting");

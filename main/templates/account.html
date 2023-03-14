@@ -5,6 +5,7 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.9.4/Chart.js"></script>
 <script src="../static/general/script/html2canvas.js"></script>
 <link rel="stylesheet" href="../static/account/css/style.css">
+<link rel="stylesheet" href="../static/dashboard/css/style.css">
 {% endblock %}
    
 {% block content%}
@@ -19,24 +20,24 @@
                 </div>
                 
                 <div class="profile-content c-vert">
-                    <h2>Emma Phillips</h2>
-                    <p>Fashion Model</p>
+                    <h2 class="__to_load" item="name">Emma Phillips</h2>
+                    <p class="__to_load" item="role">Fashion Model</p>
                 </div>
             </div>
             
             <div class="contact">
                 <div class="contact-container">
-                    <div class="contact-icon">
+                    <div class="contact-icon c-vert">
                         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Pro 6.3.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license (Commercial License) Copyright 2023 Fonticons, Inc. --><path d="M280 0C408.1 0 512 103.9 512 232c0 13.3-10.7 24-24 24s-24-10.7-24-24c0-101.6-82.4-184-184-184c-13.3 0-24-10.7-24-24s10.7-24 24-24zm8 192a32 32 0 1 1 0 64 32 32 0 1 1 0-64zm-32-72c0-13.3 10.7-24 24-24c75.1 0 136 60.9 136 136c0 13.3-10.7 24-24 24s-24-10.7-24-24c0-48.6-39.4-88-88-88c-13.3 0-24-10.7-24-24zM117.5 1.4c19.4-5.3 39.7 4.6 47.4 23.2l40 96c6.8 16.3 2.1 35.2-11.6 46.3L144 207.3c33.3 70.4 90.3 127.4 160.7 160.7L345 318.7c11.2-13.7 30-18.4 46.3-11.6l96 40c18.6 7.7 28.5 28 23.2 47.4l-24 88C481.8 499.9 466 512 448 512C200.6 512 0 311.4 0 64C0 46 12.1 30.2 29.5 25.4l88-24z"/></svg>
                     </div>
                     <div class="number-mail">(421)-307-6801</div>
                 </div>
                     
                 <div class="contact-container">                            
-                    <div class="contact-icon">
+                    <div class="contact-icon c-vert">
                         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Pro 6.3.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license (Commercial License) Copyright 2023 Fonticons, Inc. --><path d="M48 64C21.5 64 0 85.5 0 112c0 15.1 7.1 29.3 19.2 38.4L236.8 313.6c11.4 8.5 27 8.5 38.4 0L492.8 150.4c12.1-9.1 19.2-23.3 19.2-38.4c0-26.5-21.5-48-48-48H48zM0 176V384c0 35.3 28.7 64 64 64H448c35.3 0 64-28.7 64-64V176L294.4 339.2c-22.8 17.1-54 17.1-76.8 0L0 176z"/></svg>
                     </div>
-                    <div class="number-mail">ojojohn2907@gmail.com</div>
+                    <div class="number-mail __to_load" item="email">ojojohn2907@gmail.com</div>
                 </div>
 
             </div>
@@ -45,24 +46,53 @@
                     <span class="c-vert">
                         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Pro 6.3.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license (Commercial License) Copyright 2023 Fonticons, Inc. --><path d="M464 256A208 208 0 1 0 48 256a208 208 0 1 0 416 0zM0 256a256 256 0 1 1 512 0A256 256 0 1 1 0 256zm177.6 62.1C192.8 334.5 218.8 352 256 352s63.2-17.5 78.4-33.9c9-9.7 24.2-10.4 33.9-1.4s10.4 24.2 1.4 33.9c-22 23.8-60 49.4-113.6 49.4s-91.7-25.5-113.6-49.4c-9-9.7-8.4-24.9 1.4-33.9s24.9-8.4 33.9 1.4zm40-89.3l0 0 0 0-.2-.2c-.2-.2-.4-.5-.7-.9c-.6-.8-1.6-2-2.8-3.4c-2.5-2.8-6-6.6-10.2-10.3c-8.8-7.8-18.8-14-27.7-14s-18.9 6.2-27.7 14c-4.2 3.7-7.7 7.5-10.2 10.3c-1.2 1.4-2.2 2.6-2.8 3.4c-.3 .4-.6 .7-.7 .9l-.2 .2 0 0 0 0 0 0c-2.1 2.8-5.7 3.9-8.9 2.8s-5.5-4.1-5.5-7.6c0-17.9 6.7-35.6 16.6-48.8c9.8-13 23.9-23.2 39.4-23.2s29.6 10.2 39.4 23.2c9.9 13.2 16.6 30.9 16.6 48.8c0 3.4-2.2 6.5-5.5 7.6s-6.9 0-8.9-2.8l0 0 0 0zm160 0l0 0-.2-.2c-.2-.2-.4-.5-.7-.9c-.6-.8-1.6-2-2.8-3.4c-2.5-2.8-6-6.6-10.2-10.3c-8.8-7.8-18.8-14-27.7-14s-18.9 6.2-27.7 14c-4.2 3.7-7.7 7.5-10.2 10.3c-1.2 1.4-2.2 2.6-2.8 3.4c-.3 .4-.6 .7-.7 .9l-.2 .2 0 0 0 0 0 0c-2.1 2.8-5.7 3.9-8.9 2.8s-5.5-4.1-5.5-7.6c0-17.9 6.7-35.6 16.6-48.8c9.8-13 23.9-23.2 39.4-23.2s29.6 10.2 39.4 23.2c9.9 13.2 16.6 30.9 16.6 48.8c0 3.4-2.2 6.5-5.5 7.6s-6.9 0-8.9-2.8l0 0 0 0 0 0z"/></svg>
                     </span>
-                    <span class="c-vert">Change Face Auth</span>
+                    <span class="c-vert t-hold">Change Face Auth</span>
                 </div>
             </div>
         </div>
         
+        <section class="unsigned">
+            <div class="head">Complete Authentication</div>
+            <div class="process-pack">
+                <div class="process-hold">
+                    <div class="head">Find your class</div>
+                    <div class="extra-text">Hey Ojo! You haven't joined a class yet. Join one now to access tables and informations</div>
+                    <div class="process-proceed" id="joinclass">
+                        Yes, Proceed.
+                    </div>
+                </div>
+                
+            </div>
+            <style>
+                div.process-pack .process-hold{
+                    background-color: white;
+                }
+                div.process-hold .process-proceed{
+                    background-color: whitesmoke;
+                }
+                .unsigned{
+                    padding: 0px;
+                    margin: 20px auto;
+                    width: 90%;
+                    margin-top: 40px;
+
+                }
+            </style>
+        </section>
+
         <div class="class_data others">
             <div class="head">Class Data</div>
             <div class="Flex">
                 <div class="icon">
                     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Pro 6.3.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license (Commercial License) Copyright 2023 Fonticons, Inc. --><path d="M240.1 4.2c9.8-5.6 21.9-5.6 31.8 0l171.8 98.1L448 104l0 .9 47.9 27.4c12.6 7.2 18.8 22 15.1 36s-16.4 23.8-30.9 23.8H32c-14.5 0-27.2-9.8-30.9-23.8s2.5-28.8 15.1-36L64 104.9V104l4.4-1.6L240.1 4.2zM64 224h64V416h40V224h64V416h48V224h64V416h40V224h64V420.3c.6 .3 1.2 .7 1.8 1.1l48 32c11.7 7.8 17 22.4 12.9 35.9S494.1 512 480 512H32c-14.1 0-26.5-9.2-30.6-22.7s1.1-28.1 12.9-35.9l48-32c.6-.4 1.2-.7 1.8-1.1V224z"/></svg>                
                 </div>
-                <div class="content">Apotheosis De Mechanicos</div>
+                <div class="content __class_to_load" item="nick_name">Apotheosis De Mechanicos</div>
                 
             </div>
             <div class="name ">
-                200 Level
+                <span class="__class_to_load" item="level">200</span> Level
              </div>
-            <div class="name udl">
+            <div class="name udl __class_to_load" item="name">
                 Mechanical Engineering
             </div>
             
@@ -103,48 +133,57 @@
                 </div>
                 <div class="content">Log Out</div>
             </div>
-            
 
-        
         </div>
         
         
 
-        <div class="profileEdit-super" style="display: none;">
+        <div class="profileEdit-super" id="profile-Update" style="display: none;">
             <div class="profileEdit">
                 <div class="head">Edit Profile</div>
+                <div style="padding: 10px 5px; color: grey; text-align: right">
+                    Only entries that need updating need to be filled. Others can be left empty.
+                </div>
                 
                 <div class="entries-hold">
                     <div class="entries">
                         <div class="head">Name</div>
-                        <input type="text" value="Ojo JOHN" placeholder="Name">
+                        <input id="name" type="text" placeholder="Enter new name">
                     </div>
                 </div>
                 <div class="entries-hold">
                     <div class="entries">
-                        <div class="head">Matric</div>
-                        <input type="text" value="Ojo JOHN" placeholder="Matric Code">
+                        <div class="head" >Matric</div>
+                        <input id="matric" type="text" placeholder="New matric Code">
                     </div>
                 </div>
                 <div class="entries-hold">
                     <div class="entries">
                         <div class="head">Email</div>
-                        <input type="text" value="ojojohn2907@gmail.com" placeholder="Email Address">
+                        <input id="email" type="text" placeholder="New email Address">
                     </div>
                 </div>
                 <div class="entries-hold">
                     <div class="entries">
                         <div class="head">Password</div>
-                        <input type="text" value="" placeholder="Enter New Password">
+                        <input id="password" type="text" value="" placeholder="Enter New Password">
                     </div>
                 </div>
 
                 <div class="entries-hold last">
                     <div class="entries">
-                        <div class="head">Old Password</div>
-                        <input type="password" value="" placeholder="Enter old password">
+                        <div class="head">Old Email</div>
+                        <input id="old_email"  class="__to_load" item="email" type="text" placeholder="Enter old email">
                     </div>
                 </div>
+
+                <div class="entries-hold">
+                    <div class="entries">
+                        <div class="head">Old Password</div>
+                        <input id="old_password" type="password" value="" placeholder="Enter old password">
+                    </div>
+                </div>
+
                
                 
                 <div class="action">
@@ -201,7 +240,7 @@
                     color: darkblue;
                 }
 
-                .entries-hold .head{
+                div.entries-hold div.head{
                     text-align: left;
                     padding: 5px;
                 }
@@ -225,21 +264,30 @@
                     display: flex;
                     justify-content: space-between;
                 }
+                .profileEdit .action .proceed{
+                    background-image: linear-gradient(45deg, #1e1036, transparent);
+                }
+                .profileEdit .action div.cancel{
+                    background-color: whitesmoke;
+                    border: 2px solid #09097c;
+                    color: #09097c;
+                }
+
+
                 .profileEdit .action > :nth-child(n){
                     cursor: pointer;
-                    padding: 8px;
+                    padding: 5px;
                     font-size: 14px;
                     margin-top: 15px;
                     width: 48%;
-                    text-align: center;
-                    box-shadow: 0px 0px 10px 1px grey;
                     background-color: rgb(9 9 124);
+                    text-align: center;
                     border-radius: 4px;
                 }
     
             </style>    
         </div>
-        
+
        
         <script>
             

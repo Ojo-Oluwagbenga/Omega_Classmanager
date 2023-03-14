@@ -9,15 +9,19 @@ urlpatterns = [
     path("initiateattendance/<str:attendance_code>", views.initiateattendance, name="initiateattendance"),
     path("attendance_data/<str:attendance_code>", views.attendance_data, name="attendance_data"),
     path("takeattendance", views.takeattendance, name="takeattendance"),
+    path("allattendances", views.allattendances, name="allattendances"),
 
     path("createchannel", views.createchannel, name="createchannel"),
     path("payout/<str:pay_code>", views.payout, name="payout"),
+    path("allpayments", views.allpayments, name="allpayments"),
+    path("paychannel_data/<str:pay_code>", views.paychannel_data, name="paychannel_data"),
     
     path("camtest", views.camtest, name="camtest"),
     path("changeface", views.changeface, name="changeface"),
     
     path("classdata/<str:classcode_day_dclcode>", views.classdata, name="classdata"),
     path("edittimetable", views.edittimetable, name="edittimetable"),
+    path("joinclass", views.joinclass, name="joinclass"),
     
     path("dashboard", views.dashboard, name="signup"),
     path("account", views.account, name="account"),

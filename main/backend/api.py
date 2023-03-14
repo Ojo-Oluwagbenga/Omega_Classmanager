@@ -2,7 +2,7 @@ from django.shortcuts import render
 from django.http import HttpResponse
 from .utils import * 
 from ..models import *
-from .serializers import *  
+from .serializers import ModelSL 
 from .Recognition.Recog_api import Recognizer  
 import json
 import io
@@ -15,6 +15,8 @@ from pyzbar.pyzbar import ZBarSymbol
 import base64
 import numpy as np
 import qrcode
+import re
+
 
 
 from channels.layers import get_channel_layer
@@ -30,15 +32,12 @@ def test(response):
 class APIgenerals:
     def genUpdate(**kwargs):
         newData = kwargs['updates']
+        fetchpair = kwargs['fetchpair']
         if (newData is None):
             newData = {}
             
-        disallowed = kwargs['disallowed']
-        #Ensure the id and the itemcode is not fetchable
-        if ('id' not in disallowed):
-            disallowed.append("id")
-        if ('itemcode' not in disallowed):
-            disallowed.append("itemcode")
+        allowed = kwargs['allowed']
+            
 
         model = kwargs['model']
         extraverify = kwargs['extraverify']
@@ -51,28 +50,41 @@ class APIgenerals:
         selection = []
 
         for k,v in newData.items():
-            if (k not in disallowed):
+            if (k in allowed):
                 selection.append(k)
                 
         sl = ModelSL(data=newData, model=model, selection=selection, extraverify=extraverify)
         runcheck = sl.is_valid()
         callresponse = sl.callresponse
+
         if (runcheck):
-            if (callresponse['passed'] and newData.get('itemcode')):
-                callresponse = sl.cUpdate(newData.get('itemcode'), sl.validated_data)
-                callresponse['response']['updates'] = sl.validated_data
-            else:
+            qsets = model.objects.filter(**fetchpair)
+            if not model:
                 callresponse = {
                     'passed': False,
                     'response':{},
-                    'error':{
-                        'itemcode':"Item code not set"
-                    }
+                    'Message': "Queryset not found",
+                    'error':{}
                 }
+                return callresponse
+
+            qset = qsets[0]
+            for key in selection:
+                print("\n\n\n", key)
+                setattr(qset, key, newData[key])            
+            qset.save()
+            callresponse = {
+                'passed': True,
+                'response':{},
+                'Message': "Update complete",
+                'error':{}
+            }
+            return callresponse
         else:
             callresponse = sl.cError()
-        return callresponse
-
+            return callresponse
+        
+    
     def get_model_data(**kwargs):
         model = kwargs['model']
         searches = kwargs['searches']
@@ -133,14 +145,18 @@ class APIgenerals:
             'message':ret,
         }
 
+    def checkmail(mail):
+        pat = r'\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Z|a-z]{2,7}\b'
+        return re.match(pat,mail)
+
 class UserAPI(View):
 
     extraverify ={
-        #itename:[minlen, maxlen, allowedtexts]
-        'name':[4, 20, 'def'],
-        'password':[4, 20, 'idef']
+        # #itename:[minlen, maxlen, allowedtexts]
+        'name':[4, 200, 'idef'],
+        'password':[4, 200, 'idef']
     }
-
+    
     def create(self, response):
         if (response.method == "POST"):
 
@@ -153,53 +169,161 @@ class UserAPI(View):
                 'response':data,
                 'error':{}
             }
-            return (HttpResponse(json.dumps(callresponse)))
             
-            data['itemcode'] = 'dummy'
+            data['user_code'] = 'dummy'
+            
+            sl = ModelSL(data={**data}, model=User, extraverify=self.extraverify)
 
-            sl = ModelSL(data=data, model=User, extraverify=self.extraverify)
-
-            if (sl.is_valid()):
-                callresponse = sl.callresponse
-            else:
+            if (not sl.is_valid()):
                 callresponse = sl.cError()
+                return (HttpResponse(json.dumps(callresponse)))
 
-            print(callresponse)
+            callresponse = sl.callresponse
+            
             if (callresponse['passed']):
-                print('-----------------')
+                
                 print(sl.validated_data.get('email'))
-                print('-----------------')
-                if (not len(User.objects.filter(email=sl.validated_data.get('email'))) == 0):
+
+                if (User.objects.filter(email=sl.validated_data.get('email')).count() > 0):
                     callresponse['passed'] = False
-                    callresponse['error']['email']=("The provided email is already registered with us")
+                    callresponse['error']['email']="The provided email is already registered"
                 else:
                     ins_id = sl.save().__dict__['id']
-                    itemcode = numberEncode(ins_id, 7)
-                    sl.validated_data['itemcode'] = itemcode
+                    user_code = numberEncode(ins_id, 7)
+                    sl.validated_data['user_code'] = user_code
                     sl.save()
                     
-                    callresponse['response']['itemcode'] = itemcode
-                    # init_user_session(response, itemcode)
+
+                    callresponse['response']['user_code'] = user_code
+                    
+                    init_user_session(response, {
+                        'loggedin':True,
+                        'user_code':user_code,
+                        "email":data['email'],
+                        "user_type":data["user_type"],
+                        "name":data['name'],
+                        "accept_status":0,
+                    })
+
             return HttpResponse(json.dumps(callresponse))
         else:
             return HttpResponse("<div style='position: fixed; height: 100vh; width: 100vw; text-align:center; display: flex; justify-content: center; flex-direction: column; font-weight:bold>Page Not accessible<div>")
     
-    
     def update(self, response):
         if (response.method == "POST"):
-            data =  json.loads(json.loads(response.body.decode('utf-8')).get('payload'))
-            callresponse = self.subUpdate(self, data.get('updates'))
+            data =  json.loads(response.body.decode('utf-8'))
+            
+            #Validate before any story
+            validation_set = data.get("validation_set")
+            v_set = self.subValidate(validation_set.get('uniqueid'), validation_set.get('password'))
+
+            if not v_set['user']:
+                callresponse = {
+                    'passed': False,
+                    'Message': "User not found",
+                }
+                return HttpResponse(json.dumps(callresponse))
+
+            if 'user_code' not in response.session:
+                callresponse = {
+                    'passed': False,
+                    'Message': "Session expired",
+                }
+                return HttpResponse(json.dumps(callresponse))
+
+            updates = data['updates']
+            fetchpair = {
+                user_code: response.session["user_code"],
+                # "email":"ojojohn2907@gmail.com"
+            }
+
+            if (updates.get("password")):
+                if (len(updates.get("password")) < 4):
+                    callresponse = {
+                        'passed': False,
+                        'Message': "Password is too short",
+                    }
+                    return HttpResponse(json.dumps(callresponse))
+            
+            if (updates.get("name")):
+                if (len(updates.get("name")) < 4):
+                    callresponse = {
+                        'passed': False,
+                        'Message': "Name is too short",
+                    }
+                    return HttpResponse(json.dumps(callresponse))
+            
+            if (updates.get("email")):
+                if (APIgenerals.checkmail(updates.get("email"))):
+                    if User.objects.filter(email=updates.get("email")).count() > 0:
+                        callresponse = {
+                            'passed': False,
+                            'Message': "Email already exists",
+                        }
+                        return HttpResponse(json.dumps(callresponse))
+                else:
+                    callresponse = {
+                        'passed': False,
+                        'Message': "Email is not a valid email!",
+                    }
+                    return HttpResponse(json.dumps(callresponse))
+
+            if (updates.get("matric")):
+                updates["matric"] = updates.get("matric").upper()
+
+            callresponse = self.subUpdate(self, updates, fetchpair)
             return HttpResponse(json.dumps(callresponse))
         else:
             return HttpResponse("<div style='position: fixed; height: 100vhb ; width: 100vw; text-align:center; display: flex; justify-content: center; flex-direction: column; font-weight:bold>Page Not accessible<div>")
 
-    def subUpdate(self, updates):
-        return APIgenerals.genUpdate(updates=updates, disallowed=[], model=User, extraverify=self.extraverify)
+    def subUpdate(self, updates, fetchpair):
+        return APIgenerals.genUpdate(updates=updates, allowed=['name', 'password', 'class_code', 'matric', 'email'], model=User, extraverify=self.extraverify, fetchpair=fetchpair)
 
     def model():
         return User
 
     model = User
+
+    def update_face(self, response):
+        if (response.method == "POST"):
+            data =  json.loads(response.body.decode('utf-8'))
+            
+            callresponse = {
+                'passed': False,
+                'response':201,
+                'Message':"Broken pipe! It's us, not you! Please try again."
+            }
+
+            face_b64 = data['face_b64']
+            face = tocv2(face_b64)   
+
+            ret = Recognizer.detectFace(face)
+
+            if ret['response'] != 200:
+                callresponse['Message'] = ret['Message']
+                return HttpResponse(json.dumps(callresponse))
+                
+            # Insert the face for the user here
+            # path = os.getcwd()+"/main/static/interpolimages/"+loggedinuser
+            # create user edit folder if it doesnt exist
+            # if not os.path.isdir(path):
+            #     os.mkdir(path)
+
+            #Deletes all files in the user edit
+            # files = glob.glob(path+'/*')
+            # for f in files:
+            #     os.remove(f)    
+
+            # cv2.imwrite(imgwriteurl, img)
+
+            callresponse = {
+                'passed': True,
+                'response':200,
+                'Message':"Face Successfully registered!",
+            }
+            return HttpResponse(json.dumps(callresponse))
+        else:
+            return HttpResponse("<div style='position: fixed; height: 100vhb ; width: 100vw; text-align:center; display: flex; justify-content: center; flex-direction: column; font-weight:bold>Page Not accessible<div>")
  
     def fetch(self, response):
         if (response.method == "POST"):
@@ -223,36 +347,165 @@ class UserAPI(View):
 
     def validate(self, response):
         if (response.method == "POST"):
-            data =  json.loads(response.body.decode('utf-8')).get('payload')
+            data =  json.loads(response.body.decode('utf-8'))
 
-            callresponse = {
-                'passed': True,
-                'response':{},
-                'error':{}
-            }
+            v_set = self.subValidate( data.get('uniqueid'), data.get('password'))
 
-            unique = validateEntry(callresponse, data.get('uniqueid'), "Uniqueid", 0, 100, "def")
-            password = validateEntry(callresponse, data.get('password'), "Password", 0, 100, "idef")
-            
-            user = User.objects.filter(Q(email=unique) | Q(matric=unique), password=password)
+            callresponse = v_set['callresponse']
+            user = v_set['user']
 
-            if (callresponse['passed']):
+            if (callresponse['passed']): 
                 if (len(user) == 0 ):
                     callresponse['passed'] = False
                     callresponse["Message"] = "User not found with the provided data"
                 else:
                     callresponse['Message'] = "User found"
-                    callresponse['response'] = user[0].itemcode
+                    u_data = user[0]
+                    data =  {
+                        'loggedin':True,
+                        "email":u_data.email,
+                        "user_type":u_data.user_type,
+                        "name":u_data.name,
+                        "accept_status":u_data.accept_status,
+                        "class_code":u_data.class_code,
+                        'has_face':u_data.has_face
+                    }
+                    callresponse['response'] = {**data}
+                    
+                    qsets = Class.objects.filter(class_code=u_data.class_code).values('name', 'nick_name', 'level', 'rep_code')
+                    rep_code = ''
+                    if qsets:
+                        callresponse['response']['class_data'] = qsets[0]
+                        rep_code = qsets[0].get("rep_code")
+                    else:
+                        callresponse['response']['class_data'] = {}
                     
                     if (data.get('startSession') is not None):
                         if (data.get('startSession')):
-                            init_user_session(response, user[0].itemcode)
+                            data['user_code'] = u_data.user_code
+                            data['rep_code'] = rep_code
+                            init_user_session(response, {**data})
                             callresponse['response']['message'] = ("User found and logged in")
-
+                    
             return HttpResponse(json.dumps(callresponse))
         else:
             return HttpResponse("<div style='position: fixed; height: 100vh; width: 100vw; text-align:center; display: flex; justify-content: center; flex-direction: column; font-weight:bold>Page Not accessible<div>")
 
+    def subValidate(unique, password):
+        callresponse = {
+            'passed': True,
+            'response':{},
+            'error':{}
+        }
+        unique = validateEntry(callresponse, unique, "Uniqueid", 0, 100, "def")
+        password = validateEntry(callresponse, password, "Password", 0, 100, "idef")
+        
+        print("\n\n\n", unique, password, "\n\n\n")
+        user = User.objects.filter(Q(email=unique) | Q(matric=unique), password=password)
+
+        return {
+            "callresponse":callresponse,
+            "user":user,
+        }
+
+    def add_join_class(self, response):
+        if (response.method == "POST"):
+
+            data =  json.loads(response.body.decode('utf-8'))
+            #The class creation data should be packed in response create_payload;
+            #Other data are passed on the first level of data
+            
+            callresponse = { 
+                'passed': True,
+                'response':data,
+                'error':{}
+            }
+
+            if 'user_code' not in response.session:
+                callresponse = { 
+                    'passed': False,
+                    'response':data,
+                    'Message':"Session expired"
+                }
+            
+            if (data['user_type'] == 'rep'):
+                # Create the class
+                ret_resp = ClassAPI.create(ClassAPI, response)
+                class_data = json.loads(ret_resp.content)
+
+                if (not class_data['passed']):
+                    return ret_resp
+                
+                data['class_code'] = class_data['response']['class_code']
+            
+
+            #Matric check query
+            data['matric'] = data['matric'].upper()
+            query = {
+                'matric': data['matric'],
+            }
+            qsets = User.objects.filter(**query)
+            if qsets:
+                callresponse = { 
+                    'passed': False,
+                    'response':data,
+                    'Message':"Matric id already exists"
+                } 
+                return HttpResponse(json.dumps(callresponse))
+
+
+            #Check the class and level
+            query2 = {
+                'class_code': data['class_code'],
+                'level':data['level'],
+            }
+            c_qsets = Class.objects.filter(**query2).values("name", "nick_name","level", 'rep_code')
+            if not c_qsets:
+                callresponse = { 
+                    'passed': False,
+                    'Message': data['level'] + "level " + data['class_name'] + " has not been created!"
+                } 
+                return HttpResponse(json.dumps(callresponse))
+
+
+
+
+            #Add the fvcking user to class
+            query = {
+                'user_code': response.session['user_code'],
+            }
+            qsets = User.objects.filter(**query)
+            c_qset = c_qsets[0]
+            
+
+            qset = qsets[0]
+            qset.class_code = data['class_code']
+            qset.user_type = data['user_type']
+            qset.matric = data['matric']
+            qset.accept_status = "1"
+            qset.save()
+
+            response.session['accept_status'] = 1
+            response.session['class_code'] = data['class_code']
+            response.session['matric'] = data['matric']
+
+            callresponse = { 
+                'passed': True,
+                'response':data,
+                'class_code':data['class_code'],
+                'class_name':c_qset['name'],
+                'class_nick_name':c_qset['nick_name'],
+                'class_level':c_qset['level'],
+                'class_rep_code':c_qset['rep_code'],
+                'accept_status':1
+            }
+            response.session['rep_code'] = c_qset['rep_code']
+            
+            return HttpResponse(json.dumps(callresponse))
+        else:
+            return HttpResponse("<div style='position: fixed; height: 100vh; width: 100vw; text-align:center; display: flex; justify-content: center; flex-direction: column; font-weight:bold>Page Not accessible<div>")
+    
+    
 class PaychannelAPI:
     model = PaymentChannel
 
@@ -263,6 +516,7 @@ class PaychannelAPI:
     def b64_to_cv2(base64_data):
         nparr = np.fromstring(base64_data.decode('base64'), np.uint8)
         return cv2.imdecode(nparr, cv2.IMREAD_ANYCOLOR)
+ 
 
     def create(self, response):
         if (response.method == "POST"):
@@ -279,6 +533,7 @@ class PaychannelAPI:
 
             data['creatorid'] = "cidofrep"
 
+            data['paydata'] =  {}
 
             # Writing to file
             # imgsetstring = data['imageset']
@@ -298,7 +553,7 @@ class PaychannelAPI:
                 'response':{},
                 'error':{}
             }
-            data['itemcode'] = 'dummy'
+            data['channel_code'] = 'dummy'
 
             # Collect the time in the digits value if has_deadline
             # x = datetime.datetime.now()
@@ -314,9 +569,9 @@ class PaychannelAPI:
 
             if (callresponse['passed']):
                 ins_id = sl.save().__dict__['id']
-                sl.validated_data['itemcode'] = numberEncode(ins_id, 8)
+                sl.validated_data['channel_code'] = numberEncode(ins_id, 8)
                 sl.save()
-                callresponse['response']['itemcode'] = sl.validated_data['itemcode']
+                callresponse['response']['channel_code'] = sl.validated_data['channel_code']
                     
             return HttpResponse(json.dumps(callresponse))
 
@@ -343,61 +598,139 @@ class PaychannelAPI:
         else:
             return HttpResponse("<div style='position: fixed; height: 100vh; width: 100vw; text-align:center; display: flex; justify-content: center; flex-direction: column; font-weight:bold>Page Not accessible<div>")
 
-    def testupdate(self, response):
+    def add_user_payment(self, response):
         if (response.method == "POST"):
-            # data =  json.loads(response.body.decode('utf-8')).get('payload', '{}')
+            data =  json.loads(response.body.decode('utf-8')).get('payload')
+
+            # leave the b64s to save into db BY LEAVING THIS SECTION or write them to file if possible
+            imgs_b64_collect = data['imageset']
+            data['imageset'] = {
+                "xs": "tets",
+                "nod":{
+                    "n_node":"yellow"
+                }
+            }
+
+            data['creatorid'] = "cidofrep"
+
+            data['paydata'] =  {
+                "user_code":{
+                    name:"Ojo John", 
+                    user_code:"user_code",
+                    status:"1",# 1 is completed, 0 is stillpaying
+                    total_paid:"2000",
+                    total_left:"2322",
+                    last_paid_date:"23th Jan",
+                    is_attended_to:0, #1 if user has collected package, 0 if user has not
+                    pay_milestone:[
+                        {
+                            amount_paid:120,
+                            date:"12th Jan 2020",
+                            amount_left:1200,
+                        },
+                        {
+                            amount_paid:1200,
+                            date:"13th Jan 2020",
+                            amount_left:0,
+                        }        
+                    ]            
+                },
+            }
+            
+            query = {
+                'channel_code' : channel_code,
+            }             
+
+            qsets = Class.objects.filter(**query)
+
+            if not qsets:
+                callresponse = {
+                    'passed': False,
+                    'response':201,
+                    'error':"Payment channel does not exist",
+                }
+                return HttpResponse(json.dumps(callresponse))      
+
+            qset = qsets[0]
+
+            if (qset.paydata.get(user_code) is None):
+                #Create new user branch
+                # if Amount paying equals the amount set on channel, status = 1, else, otherwise
+                qset.paydata[user_code] = {
+                    name:"userdata['name']", 
+                    user_code:user_code,
+                    status:"1",# 1 is completed, 0 is stillpaying
+                    total_paid:"amount_paid",
+                    total_left:"2322",
+                    last_paid_date:"23th Jan",
+                    is_attended_to:0, #1 if user has collected package, 0 if user has not
+                    pay_milestone:[
+                        {
+                            amount_paid:120,
+                            date:"12th Jan 2020",
+                            amount_left:1200,
+                        },     
+                    ]            
+                },
+            else:
+                qset.paydata[user_code]["total_paid"] += amount_paying
+                qset.paydata[user_code]["total_left"] -= amount_paying
+                qset.paydata[user_code]["last_paid_date"] = newdate
+                
+                if qset.paydata[user_code]["total_left"] == 0:
+                    qset.paydata[user_code]["status"] = 1
+                
+                qset.paydata[user_code]["pay_milestone"].append({
+                    amount_paid:amount_paying,
+                    date:newdate,
+                    amount_left:qset.paydata[user_code]["total_left"],
+                })
+
+            paycount = len(qset.paydata[user_code]["pay_milestone"])
+            
+            
+            qset.save()
+            
+            #Send Paid Notification to User and The class   
+            NotificationAPI.send({
+                "callback_url":url,
+                "text":"__name__ successfully (paid)(/Balanced) #300 (with #200 left to pay)(/) for the_fvcking_nameofchannel. __action_type__", 
+                "time":data['time'],
+                "category":"cla",
+                # "owners":[*data["classes"]],  
+                "owners":["creator_code"], 
+                "otherdata":{
+                    "placeholders":[
+                        {
+                            "user_code":"creator_code",
+                            "place_values":{
+                                "name":"MEE/2019/002 - Ojo John, has",
+                                "action_type":"Click to view full list",
+                            }
+                        },
+                        {
+                            "user_code":"user_code",
+                            "place_values":{
+                                "name":"You have",
+                                "action_type":"Click to download reciept"
+                            }
+                        }
+                    ]
+                }, #Any other data useful for that notification
+            })
             
 
-            # thing = PaymentChannel.objects.get(id=3) 
-            # thing.imageset['nod']['n_node'] = 'green'
-            # thing.save()
+            callresponse = {
+                'passed': True,
+                'response':200,
+                'pay_count':paycount,
+            }
 
-            thing = PaymentChannel.objects.filter(id__gt=1).values()
-            # thing.pop("_state")
-            print (list(thing))
-            ret = []
+            return HttpResponse(json.dumps(callresponse))
 
-            ret.append(list(thing))
-            # print (dir(thing))
-            # thing.imageset['nod']['n_node'] = 'blue'
-            # thing.save()
-
-            # # ret = APIgenerals.get_model_data(model=self.model, columns=data.get('columns'), searches=data.get('searches'))
-            
-            # print (dir(thing))
-            return HttpResponse(json.dumps(ret))
         else:
-            return HttpResponse("<div style='position: fixed; height: 100vhb ; width: 100vw; text-align:center; display: flex; justify-content: center; flex-direction: column; font-weight:bold>Page Not accessible<div>")
-
-    def add_pay_comment(self, response):
-        if (response.method == "POST"):
-            data =  json.loads(response.body.decode('utf-8')).get('payload', '{}')
-
-            text = payload['text']
-            parent = payload['text']
-            
-
-            # thing = PaymentChannel.objects.get(id=3) 
-            # thing.imageset['nod']['n_node'] = 'green'
-            # thing.save()
-
-            thing = PaymentChannel.objects.filter(id__gt=1).values()
-            # thing.pop("_state")
-            print (list(thing))
-            ret = []
-
-            ret.append(list(thing))
-            # print (dir(thing))
-            # thing.imageset['nod']['n_node'] = 'blue'
-            # thing.save()
-
-            # # ret = APIgenerals.get_model_data(model=self.model, columns=data.get('columns'), searches=data.get('searches'))
-            
-            # print (dir(thing))
-            return HttpResponse(json.dumps(ret))
-        else:
-            return HttpResponse("<div style='position: fixed; height: 100vhb ; width: 100vw; text-align:center; display: flex; justify-content: center; flex-direction: column; font-weight:bold>Page Not accessible<div>")
-
+            return HttpResponse("<div style='position: fixed; height: 100vh; width: 100vw; text-align:center; display: flex; justify-content: center; flex-direction: column; font-weight:bold>Page Not accessible<div>")
+   
 class AttendanceAPI:
  
     extraverify={ 
@@ -457,57 +790,7 @@ class AttendanceAPI:
 
         else:
             return HttpResponse("<div style='position: fixed; height: 100vh; width: 100vw; text-align:center; display: flex; justify-content: center; flex-direction: column; font-weight:bold>Page Not accessible<div>")
-    
-    def test(self, response):
-        if (response.method == "POST"):  
-            data =  json.loads(response.body.decode('utf-8')).get('payload')
-            
-            # thing = PaymentChannel.objects.filter(id__gt=1).values()
-            # # thing.pop("_state")
-            # print (list(thing))
-            # ret = []
 
-            # ret.append(list(thing))
-            # # print (dir(thing))
-            # # thing.imageset['nod']['n_node'] = 'blue'
-            # # thing.save()
-
-            # # # ret = APIgenerals.get_model_data(model=self.model, columns=data.get('columns'), searches=data.get('searches'))
-                
-            # # print (dir(thing))
-
-            callresponse = {
-                'passed': True,
-                'response':{},
-                'error':{}
-            }
-
-            # sl = ModelSL(data=data, model=Attendance, extraverify=self.extraverify)
-
-            # if (sl.is_valid()):
-            #     callresponse = sl.callresponse
-            # else:
-            #     callresponse = sl.cError()
-
-            # if (callresponse['passed']):
-            #     ins_id = sl.save().__dict__['id']
-            #     sl.validated_data['itemcode'] = numberEncode(ins_id, 8)
-            #     sl.save()
-            #     callresponse['response']['itemcode'] = sl.validated_data['itemcode']
-
-            thing = Attendance.objects.get(id=1)
-            print (thing)
-
-            print()
-            print(thing.attendance_data['first'][0]['name'])
-            thing.save()
-
-            thing = Attendance.objects.filter(id__gt=1).values()
-
-            return HttpResponse(json.dumps('thing')) 
-
-        else:
-            return HttpResponse("<div style='position: fixed; height: 100vh; width: 100vw; text-align:center; display: flex; justify-content: center; flex-direction: column; font-weight:bold>Page Not accessible<div>")
 
     def fetchqr(self, response):
         if (response.method == "POST"):  
@@ -695,8 +978,7 @@ class AttendanceAPI:
             # You should normally get the loggedin user from here sef    
 
             query = {
-                'classes__contains': [class_code]
-                
+                'classes__contains': [class_code]                
             }
 
             attds = Attendance.objects.filter(**query)
@@ -1066,25 +1348,44 @@ class AttendanceAPI:
 
 class ClassAPI:
     extraverify={
-
+        "name":[4, 100, 'idef'],
+        "nick_name":[4, 100, 'idef']
     }    
 
     def create(self, response):
         if (response.method == "POST"):
-            data =  json.loads(response.body.decode('utf-8')).get('payload')            
+            data =  json.loads(response.body.decode('utf-8')).get('create_payload')            
+
+            callresponse = { 
+                'passed': True,
+                'response':{
+                    'class_code':"sjsdjd"
+                },
+                'error':{}
+            }
+
+            # return HttpResponse(json.dumps(callresponse))
+
+            query = {
+                'name': data['name'],
+                'level':data['level'],
+                'university':data['university'],
+            }
+            qsets = Class.objects.filter(**query)
+
+            if qsets:
+                callresponse = {
+                    'passed': False,
+                    'response':201,
+                    'Message':data['level'] + "level " + data['name'] + " already exists",
+                }
+                return HttpResponse(json.dumps(callresponse))
+            #Verify data
+
             
-            # channel_layer = get_channel_layer()
 
-            # async_to_sync(channel_layer.group_send)(
-            #     "grouptest",
-            #     {
-            #         "type": "chatmessages",
-            #         "message": "Freak",
-            #     },
-            # )
-
-            return HttpResponse("Family")
-            data['class_code'] = "init" 
+            data['class_code'] = "init"
+            data['rep_code'] = response.session['user_code']
             data['timetable'] = {
                 'tableset':{
                     "Monday":[],
@@ -1100,8 +1401,7 @@ class ClassAPI:
             sl = ModelSL(data=data, model=Class, extraverify=self.extraverify)
 
             if (sl.is_valid()):
-                callresponse = sl.callresponse
-                
+                callresponse = sl.callresponse                
             else:
                 callresponse = sl.cError()
 
@@ -1641,7 +1941,7 @@ class NotificationAPI:
         return callresponse
 
 
-        dataset['itemcode'] = "dummy"
+        dataset['noti_code'] = "dummy"
         sl = ModelSL(data=dataset, model=Notification, extraverify=self.extraverify)
 
         if (sl.is_valid()):
@@ -1651,9 +1951,9 @@ class NotificationAPI:
 
         if (callresponse['passed']):
             ins_id = sl.save().__dict__['id']
-            sl.validated_data['itemcode'] = numberEncode(ins_id, 6)
+            sl.validated_data['noti_code'] = numberEncode(ins_id, 6)
             sl.save()
-            callresponse['response']['notification_code'] = sl.validated_data['itemcode']
+            callresponse['response']['notification_code'] = sl.validated_data['noti_code']
         
         
         for listener in dataset['owners']:
@@ -1692,7 +1992,3 @@ class NotificationAPI:
         else:
             return HttpResponse("<div style='position: fixed; height: 100vh; width: 100vw; text-align:center; display: flex; justify-content: center; flex-direction: column; font-weight:bold>Page Not accessible<div>")
    
-
-
-
-

@@ -19,6 +19,46 @@ align-items:center;
 .page{
     justify-content: center;
 }
+
+.unsigned{
+    padding: 10px;
+    display: none;
+}
+.unsigned > div.head{ 
+    font-size: 18px;
+    margin-left: 8px;
+}
+
+.unsigned .head{ 
+    font-weight: bold;
+    margin: 10px 0;
+    font-size: 15px;
+}
+.process-pack{
+    padding: 0px;
+}
+.process-pack .process-hold{
+    background-color: whitesmoke;
+    border-radius: 10px;
+    padding: 10px;
+    margin: 10px 0;
+    display: flex;
+    flex-direction: column;
+}
+.process-hold .extra-text{
+    padding: 0px;
+}
+.process-hold .process-proceed{
+    align-self: flex-end;
+    margin: 10px 0;
+    background-color: gainsboro;
+    border-radius: 5px;
+    padding: 5px 10px;
+    cursor: pointer;
+    font-size: 13px;
+    font-weight: bold;
+}
+
 .inner{
     width: 100%;
     flex-direction:column;

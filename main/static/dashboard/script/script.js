@@ -1,6 +1,18 @@
 $(document).ready(function(){
+    let user_data = JSON.parse(sessionStorage.getItem("user_data"));
+    function pageSetup(){
+        if (user_data.accept_status != 1){
+            $(".unsigned").css("display", "block");
+        }
+        $(".__to_load").each(function(){
+            const toload  = $(this).attr("item");
+            $(this).text(user_data[toload])
+        })
+    }
+    pageSetup();
+
     let recallcount = 0
-    tout = () => {
+    t_out = () => {
         setTimeout(() => {
             let k = $(".today .innerscroll .container");
             if (!k.attr("loaded")){
@@ -8,14 +20,14 @@ $(document).ready(function(){
                 if (recallcount < 10){
                     recallcount += 1;
                     // popAlert("Recalling")
-                    tout()
+                    t_out()
                 }                
             }else{
                 init();
             }
         }, 500);
     }
-    tout();
+    user_data.accept_status == 1 ? t_out() : null;
 
     function init(){
         $(".open-desc").click(function(){
@@ -63,5 +75,10 @@ $(document).ready(function(){
     
     
         })
-    }
+    }    
+
+    $("#joinclass").click(function(){
+        window.location.href = './joinclass';
+    })
+    
 })

@@ -1,0 +1,329 @@
+{% extends "base.html" %}
+{% block extrahead%}
+<link rel="stylesheet" href="../static/createchannel/css/style.css">
+{% endblock %}
+    
+{% block content%}
+
+    <section class="content-area">
+        <div class="editsuper">          
+            <div class="join-type">
+                <div class="head">Joining class as Class rep</div>
+                <div class="clause">
+                    <span class="text">Seems Ojo Oluwagbenga has signed in as the class rep</span> <br>
+                    <span id="raise-issue" class="action">Raise issue</span> or <span id="toggle-join" class="action">Join as a member</span>
+                </div>
+            </div>
+
+            <div id="coursehold" class="providerSelectBox itembox">
+                <div class="head-text">
+                    Enter any consecutive letters of the class in the space below to filter 
+                </div>
+
+                <div class="normalwidth filterer" style="padding:10px;display:flex;justify-content: space-evenly; border-bottom: none;border-radius: 10px">
+                    <input style=" padding:5px;width: 90%; outline:none; border:none;" placeholder="Enter any consecutive class letters here" type="text"> 
+                    <span class="c-vert">Filter</span>
+                </div>
+                <div class="normalwidth ddhold" id="course" openstate=0 >
+    
+                    <span class="name">Click to select Class</span>
+                    <span  style="display:none" class="svghold"><svg style="height:14px" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Pro 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license (Commercial License) Copyright 2022 Fonticons, Inc. --><path d="M201.4 137.4c12.5-12.5 32.8-12.5 45.3 0l160 160c12.5 12.5 12.5 32.8 0 45.3s-32.8 12.5-45.3 0L224 205.3 86.6 342.6c-12.5 12.5-32.8 12.5-45.3 0s-12.5-32.8 0-45.3l160-160z"/></svg><span>
+                </div>     
+                    
+
+                <div class="normalwidth dropdownwrap">
+                    <div class="dropdown">
+                        <div class="dditem" bio="mtn">MTN</div>
+                    </div>
+                </div>
+
+
+                <style>
+                    .nameBar{
+                        padding: 10px 0px ;
+                        font-weight: bold;
+                        font-size: 14px;
+                        width: 95%;
+                        margin: 0px auto;
+                    }
+                    .head-text{
+                        padding: 10px 0;
+                        margin-bottom: 7px;
+                        font-size: 14px;
+                    }
+                    .normalwidth{
+                        margin: 0px auto !important;
+                    }
+                    .normalwidth.filterer{
+                        background-color: white;
+                    }
+
+                    .providerSelectBox{
+                        position: relative;
+                        padding: 0 10px ;
+                    }
+                    .ddhold{
+                        position: relative;
+                        width: 100%;
+                        height: 65px;
+                        cursor: pointer;
+                        display: flex;
+                        z-index: 2;
+                        font-weight: bold;
+                        position: relative;
+                        font-size: 13px;
+                        flex-direction: column;
+                        text-align: center;
+                        border-radius: 10px 0;
+                        margin: 0px auto;
+                        justify-content: center;
+                    }
+                    .ddhold > span:nth-child(1){
+                        padding: 10px;
+                        background-color: gainsboro;
+                        border-radius: 10px;
+                    }
+                    .ddhold > span:nth-child(2){
+                        position: absolute;
+                        right: 2%;
+                    }
+                    .ddhold > span > i{
+                        transform: rotateZ(90deg);
+                    }
+                    .dropdownwrap{
+                        position: relative;
+                        width: 100%;
+                        top: calc(100% + 6px);
+                        display: flex;
+                        justify-content: center;
+                    }
+                    .dropdown{
+                        width: 100%;
+                        height: 0px;
+                        margin: 0px auto;
+                        position: relative;
+                        z-index: 3;
+                        transition: height 0.2s ease-in;
+                        max-height: 200px;
+                        overflow: auto;
+                        display: block;
+                    }
+                    .dropdown .dditem{
+                        height: 60px;
+                        text-align: center;
+                        width: 80%;
+                        font-size: 14px;
+                        display: flex;
+                        flex-direction: column;
+                        padding: 10px;
+                        justify-content: center;
+                        border : 1px dashed #d3d3d3;
+                        border-radius: 5px;
+                        margin: 10px auto;
+                        cursor: pointer;
+                    }          
+                    .filterer span{
+                        text-align: center;
+                        background-color: #606060;
+                        margin: auto 0;
+                        height: max-content;
+                        width: max-content;
+                        letter-spacing: 1px;
+                        border-radius: 5px;
+                        box-shadow: 0px 0px 10px -2px grey;
+                        color: white;
+                        padding: 3px 10px;
+                        font-size: 14px;
+                        cursor: pointer;
+                    }        
+                    
+                </style>
+                
+
+            </div>
+
+            <div class="radiogroup">
+                <div class="head">
+                    Select Level
+                </div>
+                <div class="rb-hold">
+                    <div class="radiobutton" value="100">
+                        <div class="svghold c-vert">
+                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><path d="M470.6 105.4c12.5 12.5 12.5 32.8 0 45.3l-256 256c-12.5 12.5-32.8 12.5-45.3 0l-128-128c-12.5-12.5-12.5-32.8 0-45.3s32.8-12.5 45.3 0L192 338.7 425.4 105.4c12.5-12.5 32.8-12.5 45.3 0z"/></svg>
+                        </div>
+                        <div class="text c-vert">100 level</div>
+                    </div>
+                    <div class="radiobutton"  value="200">
+                        <div class="svghold c-vert">
+                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><path d="M470.6 105.4c12.5 12.5 12.5 32.8 0 45.3l-256 256c-12.5 12.5-32.8 12.5-45.3 0l-128-128c-12.5-12.5-12.5-32.8 0-45.3s32.8-12.5 45.3 0L192 338.7 425.4 105.4c12.5-12.5 32.8-12.5 45.3 0z"/></svg>
+                        </div>
+                        <div class="text c-vert">200 level</div>
+                    </div>
+                    <div class="radiobutton" value="300">
+                        <div class="svghold c-vert">
+                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><path d="M470.6 105.4c12.5 12.5 12.5 32.8 0 45.3l-256 256c-12.5 12.5-32.8 12.5-45.3 0l-128-128c-12.5-12.5-12.5-32.8 0-45.3s32.8-12.5 45.3 0L192 338.7 425.4 105.4c12.5-12.5 32.8-12.5 45.3 0z"/></svg>
+                        </div>
+                        <div class="text c-vert">300 level</div>
+                    </div>
+                    <div class="radiobutton" value="400">
+                        <div class="svghold c-vert">
+                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><path d="M470.6 105.4c12.5 12.5 12.5 32.8 0 45.3l-256 256c-12.5 12.5-32.8 12.5-45.3 0l-128-128c-12.5-12.5-12.5-32.8 0-45.3s32.8-12.5 45.3 0L192 338.7 425.4 105.4c12.5-12.5 32.8-12.5 45.3 0z"/></svg>
+                        </div>
+                        <div class="text c-vert">400 level</div>
+                    </div>
+                    <div class="radiobutton"  value="500">
+                        <div class="svghold c-vert">
+                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><path d="M470.6 105.4c12.5 12.5 12.5 32.8 0 45.3l-256 256c-12.5 12.5-32.8 12.5-45.3 0l-128-128c-12.5-12.5-12.5-32.8 0-45.3s32.8-12.5 45.3 0L192 338.7 425.4 105.4c12.5-12.5 32.8-12.5 45.3 0z"/></svg>
+                        </div>
+                        <div class="text c-vert">500 level</div>
+                    </div>
+                </div>
+                <style>
+                
+                    .radiogroup{
+                        padding: 10px;
+                    }
+                    .radiogroup .head{
+                        font-weight: bold;
+                        font-size: 16px;
+                    }
+                    .rb-hold{
+                        display: flex;
+                        flex-wrap: wrap;
+                    }
+                    .radiobutton{
+                        display: flex;
+                        margin: 15px 0;
+                        font-size: 14px;
+                        cursor: pointer;
+                    }
+                    .radiobutton .svghold{
+                        padding: 10px;
+                        width: 30px;
+                        height: 30px;
+                        border-radius: 50%;
+                        background-color: white;
+                        margin: 0px 10px;
+                    }
+                    .radiobutton.selected{
+                        font-weight: bold;
+                    }
+                    .radiobutton.selected .svghold svg{
+                        display: inline;
+                    }
+                    .radiobutton .svghold svg{
+                        display: none;
+                    }
+    
+                    
+                </style>
+            </div>      
+            
+            <div class="data-head">
+                Class Data
+            </div>
+
+            <div class="entries-hold">
+                <div class="namesuper editbox no-edit" id="classname">
+                    <h3 class="ed-name">Class Name</h3>
+                    <div class="texthold">
+                        <input id="price" type="numeric" placeholder="e.g Mechanical Engineering" readonly>
+                    </div>
+                </div>
+                <div class="namesuper editbox no-edit" id="userlevel">
+                    <h3 class="ed-name">Level</h3>
+                    <div class="texthold">
+                        <input id="price" type="numeric"  readonly>
+                    </div>
+                </div>
+                <div class="namesuper editbox" id="matric">
+                    <h3 class="ed-name">Matric Number</h3>
+                    <div class="texthold">
+                        <input id="price" placeholder="MEE/2019/052" type="text" >
+                    </div>
+                </div>
+                <div class="namesuper editbox" id="classnick">
+                    <h3 class="ed-name">Class NickName</h3>
+                    <div class="texthold">
+                        <input id="price" placeholder="Level name" type="text" >
+                    </div>
+                </div>
+                
+
+            </div>
+
+            <div class="createchannel createattendance" notify=true>
+                <div class="hold">
+                    <span class="c-vert">Join Class</span> 
+                    <span class="c-vert" >
+                        <svg xmlns="http://www.w3.org/2000/svg" style="fill:#3434b3;  ; height:13px" viewBox="0 0 448 512"><!--! Font Awesome Pro 6.2.1 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license (Commercial License) Copyright 2022 Fonticons, Inc. --><path d="M438.6 278.6c12.5-12.5 12.5-32.8 0-45.3l-160-160c-12.5-12.5-32.8-12.5-45.3 0s-12.5 32.8 0 45.3L338.8 224 32 224c-17.7 0-32 14.3-32 32s14.3 32 32 32l306.7 0L233.4 393.4c-12.5 12.5-12.5 32.8 0 45.3s32.8 12.5 45.3 0l160-160z"/></svg>
+                    </span>
+                </div>
+                <style>
+                    .createchannel{
+                        display: flex;
+                        flex-wrap: wrap;
+                    }
+                    .createchannel span{
+                        font-size: 14px;
+                        font-weight: normal;
+                    }
+                    .createchannel .hold{
+                        margin: 10px;
+                        box-shadow: 0px 0px 9px -3px #878686;
+                        background-color:#e0dfff;
+                        cursor:pointer;
+                    }
+                    
+                </style>
+            </div>
+
+            <style>
+                .data-head{
+                    border-bottom: 2px solid grey;
+                    font-weight: bold;
+                    color: grey;
+                    padding: 10px 0;
+                    margin: 0px 10px;
+                }
+                .entries-hold{
+                    padding: 10px;
+                }
+                .no-edit{
+                    opacity: 0.8;
+                }
+                div.editbox {
+                    padding: 5px 10px;
+                    margin-bottom: 5px;
+                }
+                .join-type{
+                    padding: 10px;
+                }
+                .join-type .head{
+                    font-weight: bold;
+                    margin-bottom:10px;
+                    font-size: 18px;
+                }
+                .join-type .clause{
+                    margin:20px;
+                    color:grey;
+                    font-size: 14px;
+                }
+                .join-type .clause .action{
+                    cursor: pointer;
+                    color: black;
+                    text-decoration: underline;
+                }
+            </style>            
+
+            
+            
+        </div>
+
+    </section>
+    
+
+{% endblock %}
+{% block extrafoot%}
+    <script src="../static/joinclass/script/script.js"></script>
+{% endblock %}

@@ -74,10 +74,10 @@
                             <input class="page-field page-pass" type="password" name="password" id="">
                             <img src="../static/signup/img/icon_hide.svg" alt="" class="page-toggle">
                         </div>
-                        <button class="page-button" id="sign-up" >Signup</button>
+                        <button class="page-button" id="sign-up" >Log in</button>
                     </div>
-                    <div class="page-">
-                        <div class="page-line">or sign up with</div>
+                    <div class="page-login-super">
+                        <!-- <div class="page-line">or sign up with</div>
                         <div class="page-link flex">
                             <a class="page-icon" href="">
                                 <img src="../static/signup/img/icon-facebook.svg" alt="facebook">
@@ -85,8 +85,8 @@
                             <a class="page-icon" href="">
                                 <img src="../static/signup/img/icon-google.svg" alt="google">
                             </a>
-                        </div>
-                        <div class="page-login">Don't Have an Account? <a href="./signup" class="page-login-dark">Log in</a></div>
+                        </div> -->
+                        <div class="page-login">Don't Have an Account? <a href="./signup" class="page-login-dark">Create an account</a></div>
                     </div>
                 </div>
             </div>
@@ -137,11 +137,14 @@
                             "X-CSRFToken" : $("input[name='csrfmiddlewaretoken']").val()
                         },
                         data: {
-                            payload: submit_item
+                            ...submit_item,
+                            startSession:true
                         }
                     }).then(response => {
                         console.log(response);
                         if (response.data.passed){
+                            sessionStorage.clear();
+                            sessionStorage.setItem('user_data', JSON.stringify(response.data.response))
                             window.location.href = './dashboard'
                         }else{
                             popAlert(response.data.Message)

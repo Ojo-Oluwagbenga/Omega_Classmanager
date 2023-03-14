@@ -10,6 +10,7 @@
 
     <link rel="stylesheet" href="../static/general/css/utils.css">
     <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
 
     {% block extrahead%}
 
@@ -67,8 +68,8 @@
             <div class="head">head</div>
             <div class="text">Text</div>
             <div class="but-hold">
-                <div class="negative" >Cancel</div>
-                <div class="positive">Proceed</div>
+                <div class="actions negative" >Cancel</div>
+                <div class="actions positive">Proceed</div>
             </div>
         </div>
         <style>
@@ -132,17 +133,183 @@
                 $("#alertsuper").css({"display":'flex'});
                 $("#alertsuper .head").text(data.head);
                 $("#alertsuper .text").text(data.text);
+                
+                $("#alertsuper .actions").unbind("click");
+                $("#alertsuper .positive").click(() => {
+                    $("#alertsuper").css({"display":'none'});
+                    data.positiveCallback()
+                });
                 $("#alertsuper .negative").click(function(){
                     $("#alertsuper").css({"display":'none'});
                     data.negativeCallback();                    
                 });
-                $("#alertsuper .positive").click(function(){
-                    $("#alertsuper").css({"display":'none'});
-                    data.positiveCallback()
-                });
             }
         </script>
     </div>  
+
+    <div class="profileEdit-super"  id="dataCollect" style="display: none;">
+        <div class="profileEdit">
+            <div class="head">Edit Profile</div>
+
+            <div class="entries-hold">
+                <div class="entries">
+                    <div class="head">Password</div>
+                    <input type="text" value="" placeholder="Enter New Password">
+                </div>
+            </div>
+           
+            
+            <div class="action">
+                <div class="cancel">Cancel</div>
+                <div class="proceed">Proceed</div>
+            </div>
+        </div>
+        <style>
+            #dataCollect.profileEdit-super{
+                position: fixed;
+                top: 0px;
+                left: 0px;
+                z-index: 5;
+                width: 100%;
+                height: 100vh;    
+                padding: 20px 0;  
+                overflow-y: scroll;             
+                display: flex;
+                justify-content: center;
+                flex-direction: column;
+                backdrop-filter: blur(10px);
+            }
+            #dataCollect .profileEdit{
+                position: relative;
+                margin: 20px 0;
+                align-self: center;
+                width: 80%;
+                padding: 15px;
+                margin: 0px auto;
+                max-width: 300px;
+                border-radius: 10px;
+                box-shadow: 0px 0px 36px -12px grey;
+                background-color: #f5f5f5;
+            }
+            .profileEdit > .head{
+                padding-bottom: 5px;
+                border-bottom: 1px dashed grey;
+            }
+
+            .profileEdit .head{
+                text-align: center;
+                font-weight: bold;
+            }
+            .profileEdit .entries-hold{
+                padding: 5px 0;
+                margin: 10px 0;
+                font-size: 14px;
+            }
+            
+
+            .profileEdit .entries-hold .head{
+                text-align: left;
+                padding: 5px 0;
+            }
+            .entries-hold input{
+                border: none;
+                border-radius: 6px;
+                background-color: white;
+                outline: none;
+                padding: 10px;
+                width: 100%;
+            }
+            .entries-hold.last{
+                border-top: 1px dashed grey;
+                padding-top: 20px;
+            }
+            .profileEdit .action{
+                width: calc(100% - 10px);
+                margin: 5px 0;
+                color: white;
+                cursor: pointer;
+                display: flex;
+                justify-content: space-between;
+            }
+            .profileEdit .action div.cancel{
+                background-color: whitesmoke;
+                border: 1px solid #09097c;
+                color: #09097c;
+            }
+
+
+            .profileEdit .action > :nth-child(n){
+                cursor: pointer;
+                padding: 5px;
+                font-size: 14px;
+                margin-top: 15px;
+                width: 48%;
+                background-color: rgb(9 9 124);
+                text-align: center;
+                border-radius: 4px;
+            }
+
+        </style>    
+        <script>
+            function dataCollect(data){
+                // data = {
+                    //     entryset:[
+                    //         {name:"Email", required:true, keyname:"email"},
+                    //         {name:"Name", required:false, keyname:"name"},
+                    //     ],
+                    //     positiveCallback:()=>{},
+                    //     negativeCallback:()=>{},
+                    //     head:"The head",
+
+                // }
+                
+                let app_str = '';
+                for (let i = 0; i < data.entryset.length; i++) {
+                    const entry = data.entryset[i];
+                    let req = entry.required ? "required" : "non"
+                    app_str += `<div class="entries" key=" ${entry.keyname}" class="${i}" reqstat="${req}">
+                                    <div class="head">${entry.name}</div>
+                                    <input type="text" value="" placeholder="Enter value here">
+                                </div>`;
+                }
+
+                $("#dataCollect .entries-hold").html(app_str);
+                $("#dataCollect").css({display:"flex"});
+                $("#dataCollect .profileEdit > .head").html(data.head);
+
+
+                $("#dataCollect .action > div").unbind("click");
+                $("#dataCollect .proceed").click(() => {
+                    let isnotin = false;
+                    let isnotin_name = '';
+                    let retData = {}
+                    $("#dataCollect .entries").each(function(){
+                        let rqd_val = $(this).find("input").val();
+
+                        if ($(this).attr("reqstat") == 'required'){
+                            if (!isnotin){
+                                isnotin = rqd_val == "";
+                                isnotin_name =  $(this).find(".head").text()
+                            }                            
+                        }
+                        retData[$(this).attr("key")] = rqd_val
+                        
+                    });
+                    if (isnotin){
+                        popAlert(isnotin_name + " is required!");
+                        return
+                    }
+                    $("#dataCollect").css({display:"none"});
+                    data.positiveCallback(retData);
+                });
+                $("#dataCollect .cancel").click(function(){
+                    $("#dataCollect").css({display:"none"});
+                    data.negativeCallback();
+                })                
+
+            }
+        </script>
+    </div>
 
     <!-- Head Nav -->
     <div class="top-nav">
@@ -152,6 +319,8 @@
         <span>Class Data</span>        
     </div>
 
+    
+
     <!-- Content -->
     {% block content%}
         Drop Content
@@ -160,7 +329,6 @@
 </body>
     
 
-<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
 <script src="../static/mainpack/main.js"></script>
 {% block extrafoot%}
 {% endblock%}

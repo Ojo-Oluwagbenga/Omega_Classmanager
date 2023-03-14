@@ -124,9 +124,10 @@ def numberDecode(code, encNum):
         former = rk
     return rtl
 
-def init_user_session(response,itemcode):
+def init_user_session(response, data):
     response.session.flush()
-    response.session['user'] = itemcode
+    for key in data:
+        response.session[key] = data[key]
     
     # response.session.set_expiry(25500)
 

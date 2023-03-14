@@ -84,7 +84,7 @@ body{
         padding: 10px 0px;
         box-sizing: border-box;
         flex-basis: 60%;
-        margin-left: 50px;
+        margin-left: 20px;
         align-items: center;
     }
     .profile-content h2 {
@@ -156,7 +156,8 @@ body{
         cursor: pointer;
     }
     .class_data .leave > :nth-child(n){
-        align-self: center name
+        align-self: center;
+        padding: 0;
     }
     .class_data .name{
         padding: 10px;
@@ -206,7 +207,6 @@ body{
     align-items: center;
     }
     .others .Flex .content {
-        margin-left: 20px;
         font-size: 15px;
         font-weight: 50px;
     }
@@ -218,6 +218,10 @@ body{
         border-radius: 9px;
         justify-content: center;
     }
+    div.log-out.Flex > :nth-child(n){
+        padding: 0;
+    }
+
 
     .log-out svg {
         transform: rotate(180deg);

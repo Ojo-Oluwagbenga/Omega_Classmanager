@@ -20,8 +20,8 @@ toggleButton.forEach(button => {
 let datapack = {
     member:{
         name:"",
-        matric:"",
-        classcode:"",
+        // matric:"",
+        // classcode:"",
         email:"",
         password:"",
         password_again:"",
@@ -31,9 +31,9 @@ let datapack = {
     },
     rep:{
         name:"",
-        matric:"",
-        classcode:"",
-        repsecret:"",
+        // matric:"",
+        // classcode:"",
+        // repsecret:"",
         email:"",
         password:"",
         password_again:"",
@@ -131,17 +131,13 @@ $(".page-col").click(function(){
     $(this).find(".errorpack").css("display","none");
 })
 
-$("#sign-up").click(function(){
-    //When the sign up button is clicked
-
-    
+$("#sign-up").click(function(){    
     $(".page-col .errorpack").remove();    
-    errorpack = {
-
-    }
+    errorpack = {}
     
     for(const key in submit_item){
         const val = $("#"+key + " input").val();
+        console.log(key);
         if (typeof(val) !== 'undefined'){
             if (val == ""){
                 errorpack[key] = "This entry cannot be empty"
@@ -149,14 +145,25 @@ $("#sign-up").click(function(){
             submit_item[key] = val;
         }
     }
+    if (submit_item['name'].length < 4 ){
+        errorpack["name"] = "Name cannot be shorter than 4 characters"
+    }
+    if (submit_item['password'].length < 4 ){
+        errorpack["password"] = "Password cannot be shorter than 4 characters"
+
+    }
+    if (submit_item['password_again'] !== submit_item['password'] ){
+        errorpack["password_again"] = "This does not match the set password"
+        
+    }
     
 
     for(let key in errorpack){
         $("#"+key).append("<span class='errorpack' style='font-size: 13px;'>"+ errorpack[key] +"</span>");
     }
-
-    console.log(submit_item);
     
+    console.log(submit_item);
+
     if (Object.keys(errorpack).length == 0){
         axios({
             method: 'POST',
@@ -172,10 +179,23 @@ $("#sign-up").click(function(){
         }).then(response => {
             console.log(response);
             if (response.data.passed){
-                window.location.href = '../dashboard'
+                
+                let user_data = {
+                    name: submit_item.name,
+                    email: submit_item.email,
+                    user_type: submit_item.user_type,
+                    user_code: submit_item.user_code,
+                    accept_status:0,
+                    class_data:{}
+                }
+                sessionStorage.clear();
+                sessionStorage.setItem('user_data', JSON.stringify(user_data))
+                console.log("redir");
+                window.location.href = './dashboard';
+
             }else{
                 console.log(response);
-                let err = response.data.error
+                let err = response.data.error;
                 console.log(err);
                 for(let key in err){
                     $("#"+key).append("<span class='errorpack' style='font-size: 13px;'>"+ err[key] +"</span>");
@@ -184,8 +204,7 @@ $("#sign-up").click(function(){
         }).catch(error => console.error(error))  
     }else{
         console.log(errorpack);
-    }
-      
+    }    
 
 
 });

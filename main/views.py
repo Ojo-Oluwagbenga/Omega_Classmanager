@@ -103,6 +103,39 @@ def payout(response, pay_code):
 
     return render(response, "payout.html", qset) 
 
+def paychannel_data(response, pay_code):
+    
+    # qset = PaymentChannel.objects.defer("id").filter(itemcode=pay_code).values()
+    
+    # user_code = 'loggeduser'
+
+    # if (qset.count() == 0):
+    #     return HttpResponse("Invalid Url")
+
+    # qset = qset[0] 
+    # # YOU NEED TO STAY STRONG MAN!
+    
+    # is_owner =  user_code == qset['creatorid']
+    # qset['is_owner'] = is_owner
+    # qset['description'] = mark_safe(qset['description'])
+
+    # qset['needed_data'] = json.dumps({
+    #     "name":qset['name'],
+    #     "is_owner":is_owner,
+    #     "channel_code":qset['itemcode'],
+    #     "isowner":user_verified,
+    #     "description":qset['description'],
+    #     "imageset":qset['imageset'],
+    # })
+
+    qset = {}
+
+
+    return render(response, "paychannel_data.html", qset) 
+
+
+def allpayments(response):
+    return render(response, "all_payments.html", {}) 
 
 def classdata(response, classcode_day_dclcode):
 
@@ -132,6 +165,9 @@ def classdata(response, classcode_day_dclcode):
 
     return render(response, "classdata.html", instream) 
 
+def joinclass(response):
+    return render(response, "joinclass.html", {}) 
+
 
 def createchannel(response):
     return render(response, "createchannel.html", {}) 
@@ -145,7 +181,9 @@ def attendance_data(response, attendance_code):
     
 def takeattendance(response):
     return render(response, "takeattendance.html", {}) 
-
+    
+def allattendances(response):
+    return render(response, "all_attendances.html", {}) 
     
 def createattendance(response):
     return render(response, "createattendance.html", {}) 
